@@ -3,26 +3,377 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com https://unpkg.com https://cdnjs.cloudflare.com;">
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self' 'unsafe-inline';
+    script-src 'self' 'unsafe-inline' https://unpkg.com https://cdnjs.cloudflare.com;
+    style-src  'self' 'unsafe-inline' https://fonts.googleapis.com;
+    font-src   'self' https://fonts.gstatic.com;
+    img-src    'self' data: blob:;
+    connect-src 'self' blob:;
+  ">
   <title>WordToPDF Converter</title>
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-  <div id="app">
-    <!-- Title Bar -->
-    <header class="titlebar">
-      <div class="titlebar__controls">
-        <span class="titlebar__btn titlebar__btn--close"></span>
-        <span class="titlebar__btn titlebar__btn--minimize"></span>
-        <span class="titlebar__btn titlebar__btn--maximize"></span>
-      </div>
-      <div class="titlebar__title">WordToPDF Converter</div>
-      <div class="titlebar__version">v2.4</div>
-    </header>
+<div id="app">
 
-    <div class="container">
-      <h1>WordToPDF Converter - Foundation Ready</h1>
+  <!-- ══════════════════════════════════════════
+       CUSTOM TITLE BAR
+       ══════════════════════════════════════════ -->
+  <header class="titlebar" id="titlebar">
+    <div class="titlebar__controls">
+      <button class="titlebar__btn titlebar__btn--close"    id="btn-close"    title="Close"></button>
+      <button class="titlebar__btn titlebar__btn--minimize" id="btn-minimize" title="Minimize"></button>
+      <button class="titlebar__btn titlebar__btn--maximize" id="btn-maximize" title="Maximize"></button>
     </div>
+    <div class="titlebar__center">WordToPDF Converter</div>
+    <div class="titlebar__version">v2.4</div>
+  </header>
+
+  <!-- ══════════════════════════════════════════
+       APP BODY (3 COLUMNS)
+       ══════════════════════════════════════════ -->
+  <div class="app-body">
+
+    <!-- ── SIDEBAR: SETTINGS PANEL ─────────── -->
+    <aside class="settings-panel" id="settings-panel">
+
+      <!-- Header -->
+      <div class="settings-header">
+        <!-- Lucide: sliders -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/>
+          <line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/>
+          <line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/>
+          <line x1="17" y1="16" x2="23" y2="16"/>
+        </svg>
+        <span>Settings</span>
+      </div>
+
+      <!-- PAGE SETTINGS -->
+      <div class="settings-section">
+        <div class="settings-section__title">Page Settings</div>
+
+        <!-- Page Size -->
+        <div class="settings-row">
+          <label class="settings-label" for="page-size">Page Size</label>
+          <select class="select-custom" id="page-size">
+            <option value="A4" selected>A4 — 210 × 297 mm</option>
+            <option value="Letter">Letter — 215.9 × 279.4 mm</option>
+            <option value="Legal">Legal — 215.9 × 355.6 mm</option>
+            <option value="A3">A3 — 297 × 420 mm</option>
+          </select>
+        </div>
+
+        <!-- Orientation -->
+        <div class="settings-row">
+          <span class="settings-label">Orientation</span>
+          <div class="segmented-control" id="orientation-control">
+            <button class="segmented-control__btn is-active" id="btn-portrait" data-value="portrait">
+              <!-- portrait icon -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="2" width="18" height="20" rx="2"/>
+              </svg>
+              Portrait
+            </button>
+            <button class="segmented-control__btn" id="btn-landscape" data-value="landscape">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="3" width="20" height="18" rx="2"/>
+              </svg>
+              Landscape
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTPUT OPTIONS -->
+      <div class="settings-section">
+        <div class="settings-section__title">Output Options</div>
+
+        <!-- PDF Compression Toggle -->
+        <div class="toggle-row">
+          <div class="toggle-row__info">
+            <span class="toggle-row__label">PDF Compression</span>
+            <span class="toggle-row__desc">Smaller files. Same sharp detail.</span>
+          </div>
+          <label class="toggle" id="compression-toggle">
+            <input type="checkbox" id="compress-checkbox">
+            <span class="toggle__track"></span>
+            <span class="toggle__thumb"></span>
+          </label>
+        </div>
+
+        <!-- Compression Level (hidden by default) -->
+        <div class="settings-row" id="compress-level-row" style="display:none;">
+          <label class="settings-label" for="compress-level">Compression Level</label>
+          <select class="select-custom" id="compress-level">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+
+        <!-- Output Directory -->
+        <div class="settings-row">
+          <span class="settings-label">Output Directory</span>
+          <button class="output-dir-btn" id="output-dir-btn">
+            <!-- folder icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            <span class="output-dir-path" id="output-dir-path">~/Documents/PDFs</span>
+          </button>
+          <button class="show-in-finder btn-link" id="show-in-finder-btn">
+            Show in Explorer ↗
+          </button>
+        </div>
+      </div>
+
+      <!-- PRIVACY NOTE (push to bottom) -->
+      <div class="privacy-note">
+        <!-- shield icon -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <div class="privacy-note__text">
+          <span class="privacy-note__title">Private by design</span>
+          Your files stay on your device. No uploads. No cloud.
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ── MAIN CONTENT AREA ──────────────── -->
+    <main class="main-area" id="main-area">
+
+      <!-- Hero Heading -->
+      <div class="main-hero">
+        <h1 class="main-hero__title">From Office to PDF.</h1>
+        <p class="main-hero__subtitle">One queue. Perfectly portable documents.</p>
+      </div>
+
+      <!-- Drop Zone -->
+      <div class="drop-zone" id="drop-zone" tabindex="0" role="button"
+           aria-label="Drop files here or click to browse">
+        <svg class="drop-zone__icon" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="16 16 12 12 8 16"/>
+          <line x1="12" y1="12" x2="12" y2="21"/>
+          <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+        </svg>
+        <span class="drop-zone__title">Drop your files here</span>
+        <span class="drop-zone__subtitle">.docx · .pptx · .xlsx</span>
+        <button class="btn-ghost" id="browse-btn">
+          Browse
+          <span style="color:var(--color-ink-muted);font-size:var(--text-xs);">⌘O</span>
+        </button>
+      </div>
+
+      <!-- File Queue -->
+      <div class="file-queue" id="file-queue">
+        <div class="file-queue__header">
+          <div class="file-queue__title">
+            File queue
+            <span class="file-queue__count" id="queue-count">0</span>
+          </div>
+          <button class="btn-link" id="clear-all-btn" style="display:none;">Clear all</button>
+        </div>
+
+        <!-- File list -->
+        <div class="file-queue__list" id="file-list">
+          <!-- File cards injected by app.js -->
+          <div class="file-queue__empty-hint" id="empty-hint">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Formatting, links and fonts are preserved.
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── PDF PREVIEW PANEL ─────────────── -->
+    <aside class="preview-panel is-hidden" id="preview-panel">
+
+      <!-- Header -->
+      <div class="preview-panel__header">
+        <span class="preview-panel__title">PDF Preview</span>
+        <div style="display:flex;gap:4px;">
+          <button class="btn-icon" id="preview-expand-btn" title="Expand">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+              <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+            </svg>
+          </button>
+          <button class="btn-icon" id="preview-close-btn" title="Close Preview">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- File Metadata -->
+      <div class="preview-panel__meta" id="preview-meta" style="display:none;">
+        <div class="preview-panel__filename" id="preview-filename">—</div>
+        <div class="preview-panel__fileinfo">
+          <span id="preview-pages">—</span>
+          <span>·</span>
+          <span id="preview-filesize">—</span>
+          <span id="preview-compression" class="preview-panel__compression" style="display:none;"></span>
+        </div>
+      </div>
+
+      <!-- PDF Canvas -->
+      <div class="preview-canvas-container" id="preview-canvas-container">
+        <div class="preview-placeholder" id="preview-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span>Select a converted file to preview</span>
+        </div>
+        <canvas id="pdf-canvas" style="display:none;"></canvas>
+      </div>
+
+      <!-- Page Controls -->
+      <div class="preview-panel__controls">
+        <div class="preview-nav">
+          <button class="btn-icon" id="prev-page-btn" title="Previous Page">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <span id="page-indicator">1 / 1</span>
+          <button class="btn-icon" id="next-page-btn" title="Next Page">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+        </div>
+        <div class="preview-zoom">
+          <button class="btn-icon" id="zoom-out-btn" title="Zoom Out">—</button>
+          <span id="zoom-level">75%</span>
+          <button class="btn-icon" id="zoom-in-btn" title="Zoom In">+</button>
+        </div>
+      </div>
+
+      <!-- Open PDF Button -->
+      <div class="preview-panel__footer">
+        <button class="btn-ghost" id="open-pdf-btn" style="width:100%;justify-content:center;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+          </svg>
+          Open PDF
+        </button>
+      </div>
+
+    </aside>
+
+  </div><!-- end .app-body -->
+
+  <!-- ══════════════════════════════════════════
+       FOOTER ACTION BAR
+       ══════════════════════════════════════════ -->
+  <footer class="footer-bar" id="footer-bar">
+
+    <!-- Status -->
+    <div class="footer-bar__status">
+      <div class="footer-bar__status-text" id="footer-status-text">Ready</div>
+      <div class="footer-bar__status-sub" id="footer-status-sub"></div>
+    </div>
+
+    <!-- Global Progress Bar -->
+    <div class="progress-global" id="global-progress" style="display:none;">
+      <div class="progress-global__bar">
+        <div class="progress-global__fill" id="global-progress-fill" style="width:0%;"></div>
+      </div>
+      <span class="progress-global__label" id="global-progress-label">0%</span>
+    </div>
+
+    <!-- File Summary -->
+    <div class="footer-bar__info" id="footer-info"></div>
+
+    <!-- Convert CTA -->
+    <button class="btn-primary" id="convert-btn" disabled>
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+      </svg>
+      Convert All Files
+      <span style="font-size:var(--text-xs);opacity:0.7;">⌘↵</span>
+    </button>
+
+  </footer>
+
+</div><!-- end #app -->
+
+<!-- ══════════════════════════════════════════
+     MODAL: LibreOffice Not Found
+     ══════════════════════════════════════════ -->
+<div class="modal-overlay" id="libreoffice-modal" style="display:none;">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+    <div class="modal__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+
+    <h2 class="modal__title" id="modal-title">LibreOffice Not Found</h2>
+    <p class="modal__desc">
+      WordToPDF Converter membutuhkan LibreOffice untuk mengkonversi file Office ke PDF secara offline.
+      Pastikan LibreOffice sudah terinstall, atau masukkan path manual di bawah.
+    </p>
+
+    <label class="modal__input-label" for="libreoffice-path-input">Path LibreOffice (soffice.exe)</label>
+    <div class="modal__input-group">
+      <input
+        class="modal__input"
+        id="libreoffice-path-input"
+        type="text"
+        placeholder="C:\Program Files\LibreOffice\program\soffice.exe"
+        spellcheck="false"
+      >
+      <button class="btn-ghost" id="browse-libreoffice-btn">Browse</button>
+    </div>
+
+    <div class="modal__actions">
+      <button class="btn-ghost" id="modal-skip-btn">Skip for now</button>
+      <button class="btn-primary" id="modal-save-btn">Save & Continue</button>
+    </div>
+
   </div>
+</div>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<!-- PDF.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+<!-- App Scripts -->
+<script src="scripts/app.js"></script>
+<script src="scripts/dragdrop.js"></script>
+<script src="scripts/preview.js"></script>
+
 </body>
 </html>

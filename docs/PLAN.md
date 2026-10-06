@@ -10,8 +10,8 @@
 |---|---|---|---|
 | 0 | Setup & Persiapan | ✅ Selesai | 15 menit |
 | 1 | Foundation (Electron + Struktur) | ✅ Selesai | 30 menit |
-| 2 | Core Logic (Konversi) | ⬜ Belum | 45 menit |
-| 3 | UI Design System | ⬜ Belum | 45 menit |
+| 2 | Core Logic (Konversi) | ✅ Selesai | 45 menit |
+| 3 | UI Design System | ✅ Selesai | 45 menit |
 | 4 | UI Components & Interaksi | ⬜ Belum | 60 menit |
 | 5 | Integrasi & Testing | ⬜ Belum | 30 menit |
 | 6 | Polish & Build | ⬜ Belum | 30 menit |
@@ -70,18 +70,18 @@ npm install pdf-lib
 **Tujuan:** Logic konversi berfungsi di main process.
 
 ### Checklist:
-- [ ] **2.1** Buat `src/main/converter.js`
-  - [ ] Fungsi `detectLibreOfficePath()` — cek path default Windows
-  - [ ] Fungsi `convertFile(inputPath, outputDir, options)` — panggil LibreOffice CLI
-  - [ ] Fungsi `convertBatch(files, outputDir, options, onProgress)` — loop konversi
-- [ ] **2.2** Buat `src/main/compressor.js`
-  - [ ] Fungsi `compressPdf(inputPath, outputPath, level)` menggunakan pdf-lib
-- [ ] **2.3** Register IPC handlers di `main.js`:
-  - [ ] `convert-files` handler
-  - [ ] `open-file-dialog` handler  
-  - [ ] `get-libreoffice-path` handler
-  - [ ] `compress-pdf` handler
-- [ ] **2.4** Test konversi manual via DevTools console
+- [x] **2.1** Buat `src/main/converter.js`
+  - [x] Fungsi `detectLibreOfficePath()` — cek path default Windows
+  - [x] Fungsi `convertFile(inputPath, outputDir, options)` — panggil LibreOffice CLI
+  - [x] Fungsi `convertBatch(files, outputDir, options, onProgress)` — loop konversi
+- [x] **2.2** Buat `src/main/compressor.js`
+  - [x] Fungsi `compressPdf(inputPath, outputPath, level)` menggunakan pdf-lib
+- [x] **2.3** Register IPC handlers di `main.js`:
+  - [x] `convert-files` handler
+  - [x] `open-file-dialog` handler  
+  - [x] `get-libreoffice-path` handler
+  - [x] `compress-pdf` handler
+- [ ] **2.4** Test konversi manual via DevTools console (dilakukan di Fase 5 - Integration Test)
 
 ### Test Command (di DevTools console):
 ```javascript
@@ -101,30 +101,31 @@ await window.electronAPI.convertFiles(
 **Tujuan:** Membangun design system CSS yang konsisten dan premium.
 
 ### Checklist:
-- [ ] **3.1** Buat `src/renderer/styles/main.css`
-  - [ ] CSS Variables (warna, spacing, border radius, transitions)
-  - [ ] Reset & base styles
-  - [ ] Typography system
-  - [ ] Layout grid (sidebar + main + preview)
-- [ ] **3.2** Style komponen dasar:
-  - [ ] `.btn-primary`, `.btn-secondary`, `.btn-ghost`
-  - [ ] `.badge` (status: waiting, converting, done, error)
-  - [ ] `.progress-bar` dengan gradient animation
-  - [ ] `.card` dengan glassmorphism effect
-  - [ ] `.toggle-switch` untuk settings
-  - [ ] `.select-custom` untuk dropdown
-- [ ] **3.3** Style layout utama:
-  - [ ] Header / custom title bar
-  - [ ] Sidebar settings panel
-  - [ ] Main content area
-  - [ ] Preview panel (collapsible)
-  - [ ] Footer action bar
-- [ ] **3.4** Animasi & micro-interactions:
-  - [ ] Drop zone pulse animation
-  - [ ] File card fade-in
-  - [ ] Progress bar shimmer
-  - [ ] Button hover glow
-  - [ ] Preview panel slide-in
+- [x] **3.1** Buat `src/renderer/styles/main.css`
+  - [x] CSS Variables (warna, spacing, border radius, transitions)
+  - [x] Reset & base styles
+  - [x] Typography system
+  - [x] Layout grid (sidebar + main + preview)
+- [x] **3.2** Style komponen dasar:
+  - [x] `.btn-primary`, `.btn-secondary`, `.btn-ghost`
+  - [x] `.badge` (status: waiting, converting, done, error)
+  - [x] `.progress-bar` dengan gradient animation
+  - [x] `.toggle-switch` untuk settings
+  - [x] `.select-custom` untuk dropdown
+- [x] **3.3** Style layout utama:
+  - [x] Header / custom title bar
+  - [x] Sidebar settings panel
+  - [x] Main content area
+  - [x] Preview panel (collapsible)
+  - [x] Footer action bar
+- [x] **3.4** Animasi & micro-interactions:
+  - [x] Drop zone pulse animation
+  - [x] File card spring entry animation
+  - [x] Progress bar shimmer gradient
+  - [x] Button hover glow + active press scale
+  - [x] Preview panel slide-in (translateX)
+  - [x] Badge pulse saat converting
+  - [x] Toggle switch spring animation
 
 ### Deliverable:
 > UI terlihat premium, dark mode, dan semua komponen visual sudah styled.

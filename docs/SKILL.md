@@ -29,6 +29,7 @@ Agent **HARUS** membaca file berikut secara berurutan sebelum menulis kode apapu
 2. **Baca [`docs/SPEC.md`](SPEC.md)** — spesifikasi teknis lengkap (arsitektur, struktur file, API)
 3. **Baca [`docs/PLAN.md`](PLAN.md)** — rencana 6 fase dengan checklist
 4. **Baca [`docs/FLOW.md`](FLOW.md)** — diagram alur proses sistem
+5. **Baca [`docs/DESIGN.md`](DESIGN.md)** — panduan desain WAJIB sebelum Fase 3 & 4
 
 ---
 
@@ -203,4 +204,7 @@ node --version
 | SPEC.md | `docs/SPEC.md` | Spesifikasi teknis lengkap |
 | PLAN.md | `docs/PLAN.md` | Rencana & checklist per fase |
 | FLOW.md | `docs/FLOW.md` | Diagram alur proses sistem |
+| DESIGN.md | `docs/DESIGN.md` | Panduan desain — warna, font, komponen, animasi |
+| INSTALL.md | `docs/INSTALL.md` | Panduan instalasi untuk user (Node.js, LibreOffice, app) |
+| USAGE.md | `docs/USAGE.md` | Panduan penggunaan lengkap untuk user |
 | README.md | `README.md` | Dokumentasi user-facing |

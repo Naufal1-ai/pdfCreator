@@ -9,7 +9,7 @@
 | Fase | Nama | Status | Estimasi |
 |---|---|---|---|
 | 0 | Setup & Persiapan | ✅ Selesai | 15 menit |
-| 1 | Foundation (Electron + Struktur) | ⬜ Belum | 30 menit |
+| 1 | Foundation (Electron + Struktur) | ✅ Selesai | 30 menit |
 | 2 | Core Logic (Konversi) | ⬜ Belum | 45 menit |
 | 3 | UI Design System | ⬜ Belum | 45 menit |
 | 4 | UI Components & Interaksi | ⬜ Belum | 60 menit |
@@ -54,11 +54,11 @@ npm install pdf-lib
 **Tujuan:** Aplikasi Electron bisa terbuka dengan window dasar.
 
 ### Checklist:
-- [ ] **1.1** Buat `src/main/main.js` — BrowserWindow dengan config dark mode
-- [ ] **1.2** Buat `src/preload/preload.js` — contextBridge kosong (akan diisi bertahap)
-- [ ] **1.3** Buat `src/renderer/index.html` — Skeleton HTML dasar
-- [ ] **1.4** Update `package.json` — set `main` field dan scripts `dev`
-- [ ] **1.5** Test: jalankan `npm run dev` → window harus terbuka tanpa error
+- [x] **1.1** Buat `src/main/main.js` — BrowserWindow dengan config dark mode
+- [x] **1.2** Buat `src/preload/preload.js` — contextBridge kosong (akan diisi bertahap)
+- [x] **1.3** Buat `src/renderer/index.html` — Skeleton HTML dasar
+- [x] **1.4** Update `package.json` — set `main` field dan scripts `dev`
+- [x] **1.5** Test: jalankan `npm run dev` → window harus terbuka tanpa error
 
 ### Deliverable:
 > Electron window terbuka dengan background gelap dan tidak ada error di console.

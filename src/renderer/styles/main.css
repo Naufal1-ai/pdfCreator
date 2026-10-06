@@ -1,0 +1,70 @@
+/* Dark Canvas CSS System Initializer */
+:root {
+  --color-canvas: #07080a;
+  --color-surface: #0e0f12;
+  --color-surface-elevated: #141519;
+  --color-hairline: #242728;
+  --color-ink-primary: #f4f4f6;
+  --color-ink-secondary: #9c9c9e;
+  --color-accent: #ff6363;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink-primary);
+  font-family: var(--font-sans);
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  padding: 0 16px;
+  background: var(--color-canvas);
+  border-bottom: 1px solid var(--color-hairline);
+  -webkit-app-region: drag;
+}
+
+.titlebar__controls {
+  display: flex;
+  gap: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar__btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.titlebar__btn--close { background: #ff6363; }
+.titlebar__btn--minimize { background: #ffc533; }
+.titlebar__btn--maximize { background: #59d499; }
+
+.titlebar__title {
+  font-size: 13px;
+  color: var(--color-ink-secondary);
+  font-weight: 500;
+}
+
+.titlebar__version {
+  font-size: 11px;
+  color: var(--color-ink-secondary);
+  opacity: 0.6;
+}
+
+.container {
+  padding: 32px;
+  text-align: center;
+}

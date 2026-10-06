@@ -2,11 +2,13 @@
   "name": "pdfconverter",
   "version": "1.0.0",
   "description": "> Aplikasi desktop modern berbasis Electron untuk mengkonversi file Word, PowerPoint, dan Excel ke PDF secara offline — privasi terjaga, tanpa data dikirim ke server manapun.",
-  "main": "index.js",
+  "main": "src/main/main.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
+    "dev": "electron .",
+    "build": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

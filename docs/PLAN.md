@@ -12,7 +12,7 @@
 | 1 | Foundation (Electron + Struktur) | ✅ Selesai | 30 menit |
 | 2 | Core Logic (Konversi) | ✅ Selesai | 45 menit |
 | 3 | UI Design System | ✅ Selesai | 45 menit |
-| 4 | UI Components & Interaksi | ⬜ Belum | 60 menit |
+| 4 | UI Components & Interaksi | ✅ Selesai | 60 menit |
 | 5 | Integrasi & Testing | ⬜ Belum | 30 menit |
 | 6 | Polish & Build | ⬜ Belum | 30 menit |
 | **Total** | | | **~3.5 jam** |
@@ -137,31 +137,31 @@ await window.electronAPI.convertFiles(
 **Tujuan:** Semua fitur UI berfungsi dan terhubung ke backend.
 
 ### Checklist:
-- [ ] **4.1** Lengkapi `src/renderer/index.html` — semua section HTML
-- [ ] **4.2** Buat `src/renderer/scripts/dragdrop.js`
-  - [ ] Event listener drag & drop
-  - [ ] Filter ekstensi file yang valid
-  - [ ] Visual feedback saat drag over
-  - [ ] Error toast untuk file tidak valid
-- [ ] **4.3** Buat `src/renderer/scripts/preview.js`
-  - [ ] Integrasi PDF.js via CDN
-  - [ ] Render halaman pertama PDF sebagai thumbnail
-  - [ ] Full preview di side panel
-  - [ ] Navigasi antar halaman PDF
-- [ ] **4.4** Buat `src/renderer/scripts/app.js`
-  - [ ] State management (files array, settings, isConverting)
-  - [ ] `addFiles(fileList)` — tambah file ke list
-  - [ ] `removeFile(index)` — hapus file dari list
-  - [ ] `startConversion()` — trigger konversi semua file
-  - [ ] `updateSettings(key, value)` — update settings
-  - [ ] `openPreview(filePath)` — tampilkan preview PDF
-  - [ ] Progress listener dari main process
-  - [ ] Render file cards secara dinamis
-- [ ] **4.5** Update `preload.js` — expose semua API yang dibutuhkan
-- [ ] **4.6** Implementasi modal "LibreOffice Not Found"
-  - [ ] Muncul otomatis jika LibreOffice tidak terdeteksi
-  - [ ] Input manual path LibreOffice
-  - [ ] Simpan path ke localStorage
+- [x] **4.1** Lengkapi `src/renderer/index.html` — semua section HTML (selesai Fase 3)
+- [x] **4.2** Buat `src/renderer/scripts/dragdrop.js`
+  - [x] Event listener drag & drop
+  - [x] Filter ekstensi file yang valid
+  - [x] Visual feedback saat drag over
+  - [x] Error toast untuk file tidak valid
+- [x] **4.3** Buat `src/renderer/scripts/preview.js`
+  - [x] Integrasi PDF.js via CDN
+  - [x] Render halaman pertama PDF sebagai thumbnail
+  - [x] Full preview di side panel
+  - [x] Navigasi antar halaman PDF
+- [x] **4.4** Buat `src/renderer/scripts/app.js`
+  - [x] State management (files array, settings, isConverting)
+  - [x] `addFiles(fileList)` — tambah file ke list
+  - [x] `removeFile(index)` — hapus file dari list
+  - [x] `startConversion()` — trigger konversi semua file
+  - [x] `updateSettings(key, value)` — update settings
+  - [x] `openPreview(filePath)` — tampilkan preview PDF
+  - [x] Progress listener dari main process
+  - [x] Render file cards secara dinamis
+- [x] **4.5** Update `preload.js` — expose semua API yang dibutuhkan (selesai Fase 2)
+- [x] **4.6** Implementasi modal "LibreOffice Not Found"
+  - [x] Muncul otomatis jika LibreOffice tidak terdeteksi
+  - [x] Input manual path LibreOffice
+  - [x] Simpan path ke localStorage
 
 ### Deliverable:
 > User dapat drag & drop file, melihat daftar file, mengklik Convert, melihat progress, dan preview hasil PDF.

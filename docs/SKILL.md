@@ -31,6 +31,7 @@ Agent **HARUS** membaca file berikut secara berurutan sebelum menulis kode apapu
 4. **Baca [`docs/PLAN.md`](PLAN.md)** — rencana 6 fase dengan checklist
 5. **Baca [`docs/FLOW.md`](FLOW.md)** — diagram alur proses sistem
 6. **Baca [`docs/DESIGN.md`](DESIGN.md)** — panduan desain WAJIB sebelum Fase 3 & 4
+7. **Baca [`docs/GITHUB.md`](GITHUB.md)** — panduan alur kerja Git & GitHub push
 
 ---
 
@@ -207,6 +208,7 @@ node --version
 | PLAN.md | `docs/PLAN.md` | Rencana & checklist per fase |
 | FLOW.md | `docs/FLOW.md` | Diagram alur proses sistem |
 | DESIGN.md | `docs/DESIGN.md` | Panduan desain — warna, font, komponen, animasi |
+| GITHUB.md | `docs/GITHUB.md` | Panduan alur kerja Git & push GitHub |
 | INSTALL.md | `docs/INSTALL.md` | Panduan instalasi untuk user |
 | USAGE.md | `docs/USAGE.md` | Panduan penggunaan lengkap untuk user |
 | README.md | `README.md` | Dokumentasi user-facing |

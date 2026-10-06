@@ -13,8 +13,8 @@
 | 2 | Core Logic (Konversi) | ✅ Selesai | 45 menit |
 | 3 | UI Design System | ✅ Selesai | 45 menit |
 | 4 | UI Components & Interaksi | ✅ Selesai | 60 menit |
-| 5 | Integrasi & Testing | ⬜ Belum | 30 menit |
-| 6 | Polish & Build | ⬜ Belum | 30 menit |
+| 5 | Integrasi & Testing | ✅ Selesai | 30 menit |
+| 6 | Polish & Build | ✅ Selesai | 30 menit |
 | **Total** | | | **~3.5 jam** |
 
 **Keterangan Status:**
@@ -31,7 +31,7 @@
 
 ### Checklist:
 - [x] **0.1** Verifikasi Node.js terinstall (`node --version` ≥ v18)
-- [ ] **0.2** Verifikasi LibreOffice terinstall di path default Windows (Akan disiapkan modal fallback di Fase 2)
+- [x] **0.2** Verifikasi LibreOffice terinstall di path default Windows (Akan disiapkan modal fallback di Fase 2)
 - [x] **0.3** Inisialisasi `package.json` dengan `npm init -y`
 - [x] **0.4** Install Electron: `npm install --save-dev electron@latest`
 - [x] **0.5** Install electron-builder: `npm install --save-dev electron-builder`
@@ -81,7 +81,7 @@ npm install pdf-lib
   - [x] `open-file-dialog` handler  
   - [x] `get-libreoffice-path` handler
   - [x] `compress-pdf` handler
-- [ ] **2.4** Test konversi manual via DevTools console (dilakukan di Fase 5 - Integration Test)
+- [x] **2.4** Test konversi manual via DevTools console (dilakukan di Fase 5 - Integration Test)
 
 ### Test Command (di DevTools console):
 ```javascript
@@ -190,10 +190,10 @@ await window.electronAPI.convertFiles(
 | 5.12 | Hapus file dari list | File terhapus dari UI |
 
 ### Checklist:
-- [ ] **5.1** Semua test scenario di atas PASS
-- [ ] **5.2** Tidak ada error di Electron DevTools console
-- [ ] **5.3** UI responsif saat window di-resize
-- [ ] **5.4** Memory tidak leak setelah multiple konversi
+- [x] **5.1** Semua test scenario di atas PASS
+- [x] **5.2** Tidak ada error di Electron DevTools console
+- [x] **5.3** UI responsif saat window di-resize
+- [x] **5.4** Memory tidak leak setelah multiple konversi
 
 ---
 
@@ -202,8 +202,8 @@ await window.electronAPI.convertFiles(
 **Tujuan:** Finishing touch dan menghasilkan installer `.exe`.
 
 ### Checklist:
-- [ ] **6.1** Tambahkan app icon (`assets/icon.png` ukuran 256x256)
-- [ ] **6.2** Konfigurasi `electron-builder` di `package.json`:
+- [x] **6.1** Tambahkan app icon (`assets/icon.png` ukuran 256x256)
+- [x] **6.2** Konfigurasi `electron-builder` di `package.json`:
   ```json
   {
     "build": {
@@ -220,9 +220,9 @@ await window.electronAPI.convertFiles(
     }
   }
   ```
-- [ ] **6.3** Test build: `npm run build`
-- [ ] **6.4** Verifikasi installer `.exe` berfungsi
-- [ ] **6.5** Update README dengan instruksi final
+- [x] **6.3** Test build: `npm run build`
+- [x] **6.4** Verifikasi installer `.exe` berfungsi
+- [x] **6.5** Update README dengan instruksi final
 
 ### Deliverable:
 > File `dist/WordToPDF-Converter-Setup.exe` berhasil dibuat dan dapat diinstall.

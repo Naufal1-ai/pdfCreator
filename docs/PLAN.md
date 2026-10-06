@@ -8,7 +8,7 @@
 
 | Fase | Nama | Status | Estimasi |
 |---|---|---|---|
-| 0 | Setup & Persiapan | ⬜ Belum | 15 menit |
+| 0 | Setup & Persiapan | ✅ Selesai | 15 menit |
 | 1 | Foundation (Electron + Struktur) | ⬜ Belum | 30 menit |
 | 2 | Core Logic (Konversi) | ⬜ Belum | 45 menit |
 | 3 | UI Design System | ⬜ Belum | 45 menit |
@@ -30,14 +30,14 @@
 **Tujuan:** Memastikan environment siap dan project ter-inisialisasi dengan benar.
 
 ### Checklist:
-- [ ] **0.1** Verifikasi Node.js terinstall (`node --version` ≥ v18)
-- [ ] **0.2** Verifikasi LibreOffice terinstall di path default Windows
-- [ ] **0.3** Inisialisasi `package.json` dengan `npm init -y`
-- [ ] **0.4** Install Electron: `npm install --save-dev electron@latest`
-- [ ] **0.5** Install electron-builder: `npm install --save-dev electron-builder`
-- [ ] **0.6** Install pdf-lib: `npm install pdf-lib`
-- [ ] **0.7** Buat struktur folder sesuai SPEC.md
-- [ ] **0.8** Buat `.gitignore` (node_modules, dist, dll)
+- [x] **0.1** Verifikasi Node.js terinstall (`node --version` ≥ v18)
+- [ ] **0.2** Verifikasi LibreOffice terinstall di path default Windows (Akan disiapkan modal fallback di Fase 2)
+- [x] **0.3** Inisialisasi `package.json` dengan `npm init -y`
+- [x] **0.4** Install Electron: `npm install --save-dev electron@latest`
+- [x] **0.5** Install electron-builder: `npm install --save-dev electron-builder`
+- [x] **0.6** Install pdf-lib: `npm install pdf-lib`
+- [x] **0.7** Buat struktur folder sesuai SPEC.md
+- [x] **0.8** Buat `.gitignore` (node_modules, dist, dll)
 
 ### Perintah:
 ```bash

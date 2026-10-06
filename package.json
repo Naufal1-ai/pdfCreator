@@ -1,0 +1,31 @@
+{
+  "name": "pdfconverter",
+  "version": "1.0.0",
+  "description": "> Aplikasi desktop modern berbasis Electron untuk mengkonversi file Word, PowerPoint, dan Excel ke PDF secara offline — privasi terjaga, tanpa data dikirim ke server manapun.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Naufal1-ai/pdfCreator.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Naufal1-ai/pdfCreator/issues"
+  },
+  "homepage": "https://github.com/Naufal1-ai/pdfCreator#readme",
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  }
+}

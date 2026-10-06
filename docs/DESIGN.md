@@ -17,6 +17,40 @@
 | [`FLOW.md`](FLOW.md) | Diagram alur proses sistem |
 | [`DESIGN.md`](DESIGN.md) | Panduan desain (file ini) |
 
+## 🖼️ Referensi UI Resmi (Figma)
+
+Desain UI resmi aplikasi dikembangkan di Figma berdasarkan konsep **Raycast Canvas Dark Mode**. Seluruh proses pengkodean HTML & CSS wajib mengacu pada screenshot mockups resmi ini:
+
+![Figma UI Mockup](file:///C:/Users/Nopal/.gemini/antigravity-ide/brain/c15a8bcd-ea23-4123-9a60-a340c5938775/media__1791270974822.png)
+
+### Detail Elemen UI dari Figma:
+- **Title Bar:** Custom dark title bar dengan window controls khas macOS di kiri (merah, kuning, hijau), title di tengah `"WordToPDF Converter"`, dan versi tag di kanan (`v2.4`).
+- **Sidebar Kiri (Settings):**
+  - Group **Settings** (Icon slider)
+  - **Page Size:** Dropdown (A4 `210 x 297 mm`)
+  - **Orientation:** Segmented control button (`Portrait` | `Landscape`)
+  - **PDF Compression:** Switch toggle warna merah Raycast + Subtitle `"Smaller files. Same sharp detail."`
+  - **Output Directory:** Input folder dengan path `~/Documents/PDFs` + Link aksi `"Show in Finder ↗"`
+  - **Privacy Guarantee Card:** Footnote di bawah sidebar dengan shield icon `"Private by design. Your files stay on your device. No uploads. No cloud."`
+- **Main Area (Queue & Drop Zone):**
+  - **Header Area:** Heading `"From Office to PDF."` + Subtitle `"One queue. Perfectly portable documents."`
+  - **Drop Zone:** Dashed border container dengan cloud-upload icon, subtitle `.docx · .pptx · .xlsx`, dan tombol ghost `"Browse ⌘O"`.
+  - **Queue List Header:** Label `"File queue [3]"` dan tombol aksi `"Clear all"`.
+  - **File Cards:** 
+    - Icon khusus per format: `W` (Word), `P` (PowerPoint), `X` (Excel).
+    - Status Badge: `DONE` (Mint Green + Checkmark), `CONVERTING` (Electric Blue + Progress Bar percentage), `WAITING` (Muted Purple).
+    - Footnote: Note di bawah list `"Formatting, links and fonts are preserved."`
+- **Right Panel (PDF Preview):**
+  - Title `"PDF Preview"` + Fullscreen Expand icon.
+  - Metadata file: `Quarterly report.pdf`, `8 pages · 1.1 MB -54%`.
+  - Live Page Canvas dengan kontras shadow halus.
+  - Page Controls: `< 1/8 >`, Zoom `- 75% +`, dan tombol primary ghost `"Open PDF"`.
+- **Footer Bar:**
+  - Status konversi: `"1 of 3 files converted"` + Subtitle `"Processing Product roadmap.pptx"`.
+  - Global Progress bar dengan persentase (`55%`).
+  - Info ringkasan kuantitas (`3 files · 9.0 MB`).
+  - Main CTA Button: `"Convert All Files ⌘↵"` warna Raycast Red `#ff6363` dengan icon petir.
+
 ---
 
 ## 1. 🧭 Filosofi Desain

@@ -247,13 +247,36 @@ Thumbs.db
 
 ## 7. Catatan Khusus untuk AI Coding Agent
 
-Bagi AI Coding Agent yang memelihara repository ini:
+Bagi AI Coding Agent yang memelihara repository ini, ikuti **Protokol Push Otomatis** berikut:
 
-1. **JANGAN gunakan wildcard `git add .` jika ada file sensitif atau temporary scratch files.**
-2. **Selalu jalankan `git status` terlebih dahulu** sebelum dan sesudah commit untuk memastikan staging area bersih.
-3. **Setiap kali selesai memperbarui/menambah file dokumentasi atau kode**, lakukan commit dan push secara atomik.
-4. **Sertakan baris pesan commit yang informatif** dan sesuai standar `Conventional Commits`.
-5. **Gunakan `WaitMsBeforeAsync` pada tool `run_command`** saat melakukan `git push` (misal 8000ms) untuk memastikan proses push ke jaringan remote selesai dengan sukses.
+### 7.1 Protokol Push Otomatis Agent (Automated Push Policy)
+
+1. **Trigger Otomatis:**
+   - Agent **WAJIB** melakukan `git commit` dan `git push` otomatis setiap kali **SATU FASE LENGKAP** pada [`docs/PLAN.md`](PLAN.md) selesai dikerjakan dan diverifikasi.
+   - Jangan melakukan push untuk setiap baris kode kecil, tetapi lakukan per babak (per Fase).
+
+2. **Format Pesan Commit Otomatis:**
+   - Gunakan format **Conventional Commits** berbasis Fase:
+     ```text
+     feat(phase0): setup environment & inisialisasi electron dependencies
+     feat(phase1): fondasi electron window & preload context bridge
+     feat(phase2): implementasi core logic konversi libreoffice & compressor
+     style(phase3): implementasi design system ui & komponen dark mode
+     feat(phase4): integrasi ui drag-drop, preview & state management
+     test(phase5): integrasi testing 12 skenario konversi & bugfix
+     chore(phase6): polish ui, app icon & build installer exe
+     ```
+
+3. **Protokol Auto-Recovery Kegagalan Push:**
+   - Jika perintah `git push` gagal (misal: remote rejected atau network timeout):
+     1. Agent secara otomatis menjalankan `git pull --rebase origin main`.
+     2. Agent mencoba `git push` kembali (maksimal 2 kali percobaan otomatis).
+     3. Jika masih gagal setelah 2 kali percobaan, hentikan proses dan laporkan error secara transparan ke user.
+
+4. **Keamanan Staging Area:**
+   - JANGAN gunakan wildcard `git add .` jika ada file scratch atau temporary logs yang tidak relevan.
+   - Selalu jalankan `git status` terlebih dahulu sebelum dan sesudah commit untuk memastikan staging area bersih.
+   - Gunakan `WaitMsBeforeAsync: 8000` pada tool `run_command` saat `git push`.
 
 ---
 

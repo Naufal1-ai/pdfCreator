@@ -158,6 +158,7 @@ Agent harus mengikuti alur ini **secara ketat dan berurutan**:
 - Test deliverable setiap fase sebelum lanjut
 - Gunakan path absolut untuk semua file operations
 - Dokumentasikan error di PLAN.md sebelum mencoba fix
+- Otomatis lakukan `git commit` & `git push` setiap kali 1 FASE LENGKAP selesai (lihat [`docs/GITHUB.md`](GITHUB.md) § 7.1)
 
 ### DON'T ❌
 - Jangan skip fase atau mengerjakan secara paralel

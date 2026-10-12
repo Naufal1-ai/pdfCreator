@@ -226,6 +226,16 @@ Hal yang boleh diasumsikan sendiri (tidak perlu tanya):
 
 ---
 
+### 6. 🚀 Otomatis Commit & Push Setiap Fase Selesai
+
+Agent **WAJIB** secara otomatis melakukan `git commit` dan `git push` ke remote repository setiap kali **SATU FASE LENGKAP** pada `PLAN.md` selesai dikerjakan dan diverifikasi.
+
+- **Format Commit:** Ikuti Conventional Commits berbasis fase, contoh: `feat(phase1): fondasi electron window & preload context bridge`
+- **Auto-Recovery:** Jika `git push` gagal, jalankan `git pull --rebase origin main` lalu coba push kembali (maksimal 2x percobaan otomatis) sebelum melapor ke user.
+- Detail lengkap tersedia di [`docs/GITHUB.md`](GITHUB.md) § 7.1.
+
+---
+
 ## 🚫 Anti-Patterns — Hal yang Dilarang
 
 ### Kode
@@ -287,7 +297,10 @@ START
 8. git add + git commit (format Conventional Commits)
   │
   ▼
-9. Lanjut ke task berikutnya ATAU laporkan progres ke user
+9. Jika satu FASE selesai → OTOMATIS `git push` (lihat GITHUB.md § 7.1)
+  │
+  ▼
+10. Lanjut ke task berikutnya ATAU laporkan progres ke user
   │
   ▼
 END (atau loop kembali ke langkah 3)

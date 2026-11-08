@@ -1,7 +1,15 @@
 const path = require('path');
 const fs = require('fs');
-const { detectLibreOfficePath, convertFile, convertBatch } = require('../src/main/converter');
+const { detectLibreOfficePath, convertFile, convertBatch, convertPdfToWord } = require('../src/main/converter');
 const { compressPdf } = require('../src/main/compressor');
+const {
+  mergePdfs,
+  splitPdf,
+  rotatePdf,
+  watermarkPdf,
+  addPageNumbers,
+  imagesToPdf,
+} = require('../src/main/pdfTools');
 
 const OUTPUT_DIR = path.resolve(__dirname, 'output');
 
@@ -120,6 +128,72 @@ async function runTestSuite() {
     } catch (err) {
       if (err.message.includes('Seharusnya')) throw err;
       // Berhasil menangkap error
+    }
+  });
+
+  // 9. PDF to Word (.docx) via LibreOffice
+  await test('iLovePDF Suite: PDF to Word (.docx)', async () => {
+    if (!wordPdf) throw new Error('Sumber PDF word belum tersedia.');
+    const docxOut = await convertPdfToWord(wordPdf, OUTPUT_DIR, { libreOfficePath: loPath });
+    if (!fs.existsSync(docxOut) || fs.statSync(docxOut).size === 0) {
+      throw new Error('Hasil konversi Word tidak ditemukan atau 0 byte');
+    }
+  });
+
+  // 10. Merge PDF
+  let mergedPdf = null;
+  await test('iLovePDF Suite: Merge Multi-PDF', async () => {
+    const mergeOutput = path.resolve(OUTPUT_DIR, 'test_suite_merged.pdf');
+    const res = await mergePdfs([wordPdf, excelPdf], mergeOutput);
+    mergedPdf = res.outputPath;
+    if (!isPdfValid(mergedPdf) || res.pageCount < 2) {
+      throw new Error('Gagal menggabungkan PDF');
+    }
+  });
+
+  // 11. Rotate PDF
+  await test('iLovePDF Suite: Rotate PDF (90°)', async () => {
+    const rotateOutput = path.resolve(OUTPUT_DIR, 'test_suite_rotated.pdf');
+    const res = await rotatePdf(wordPdf, rotateOutput, 90);
+    if (!isPdfValid(res.outputPath)) {
+      throw new Error('Gagal memutar halaman PDF');
+    }
+  });
+
+  // 12. Watermark PDF
+  await test('iLovePDF Suite: Watermark PDF (Diagonal Text)', async () => {
+    const wmOutput = path.resolve(OUTPUT_DIR, 'test_suite_watermarked.pdf');
+    const res = await watermarkPdf(wordPdf, wmOutput, 'CONFIDENTIAL', { opacity: 0.3 });
+    if (!isPdfValid(res.outputPath)) {
+      throw new Error('Gagal menyematkan watermark');
+    }
+  });
+
+  // 13. Add Page Numbers
+  await test('iLovePDF Suite: Add Page Numbers', async () => {
+    const pnOutput = path.resolve(OUTPUT_DIR, 'test_suite_pagenumbers.pdf');
+    const res = await addPageNumbers(mergedPdf, pnOutput, 'Halaman {n} dari {total}');
+    if (!isPdfValid(res.outputPath)) {
+      throw new Error('Gagal menambahkan nomor halaman');
+    }
+  });
+
+  // 14. Split PDF (Range & All)
+  await test('iLovePDF Suite: Split PDF', async () => {
+    const splitDir = path.resolve(OUTPUT_DIR, 'test_suite_split');
+    const files = await splitPdf(mergedPdf, splitDir, { mode: 'all' });
+    if (!files || files.length < 2 || !files.every(isPdfValid)) {
+      throw new Error('Gagal split PDF menjadi individual file');
+    }
+  });
+
+  // 15. Images to PDF
+  await test('iLovePDF Suite: Images to PDF', async () => {
+    const iconPath = path.resolve(__dirname, '..', 'assets', 'icon.png');
+    const imgPdfOutput = path.resolve(OUTPUT_DIR, 'test_suite_images.pdf');
+    const res = await imagesToPdf([iconPath], imgPdfOutput);
+    if (!isPdfValid(res.outputPath) || res.pageCount < 1) {
+      throw new Error('Gagal mengonversi gambar ke PDF');
     }
   });
 

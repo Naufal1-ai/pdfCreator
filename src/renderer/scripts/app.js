@@ -7,6 +7,7 @@
 // STATE
 // ============================================================
 const state = {
+  currentTool: 'office-to-pdf', // 'office-to-pdf' | 'merge-pdf' | 'split-pdf' | 'rotate-pdf' | 'watermark-pdf' | 'images-to-pdf' | 'pdf-to-word'
   files: [],          // Array of { path, name, size, ext, status, outputPath, progress }
   settings: {
     pageSize: 'A4',
@@ -16,8 +17,18 @@ const state = {
     outputDir: null,          // null = folder yang sama dengan file input
     libreOfficePath: null,
   },
+  toolSettings: {
+    splitMode: 'all',
+    splitRange: '',
+    rotateAngle: 90,
+    watermarkText: 'CONFIDENTIAL',
+    watermarkOpacity: 0.25,
+    addPageNumbers: false,
+  },
   isConverting: false,
 };
+
+window.state = state;
 
 // ============================================================
 // UTILS
@@ -35,12 +46,24 @@ function getFileExt(filename) {
 }
 
 function getFileTypeLabel(ext) {
-  const map = { docx: 'W', doc: 'W', pptx: 'P', ppt: 'P', xlsx: 'X', xls: 'X' };
-  return map[ext] || ext.toUpperCase().charAt(0);
+  const map = {
+    docx: 'W', doc: 'W',
+    pptx: 'P', ppt: 'P',
+    xlsx: 'X', xls: 'X',
+    pdf: 'PDF',
+    png: 'IMG', jpg: 'IMG', jpeg: 'IMG',
+  };
+  return map[ext] || ext.toUpperCase().slice(0, 3);
 }
 
 function getFileTypeClass(ext) {
-  const map = { docx: 'docx', doc: 'doc', pptx: 'pptx', ppt: 'ppt', xlsx: 'xlsx', xls: 'xls' };
+  const map = {
+    docx: 'docx', doc: 'doc',
+    pptx: 'pptx', ppt: 'ppt',
+    xlsx: 'xlsx', xls: 'xls',
+    pdf: 'pdf',
+    png: 'img', jpg: 'img', jpeg: 'img',
+  };
   return map[ext] || 'docx';
 }
 
@@ -166,12 +189,16 @@ function createFileCard(file, index) {
 
     <div class="file-card__info">
       <div class="file-card__name" title="${file.name}">${file.name}</div>
-      <div class="file-card__meta">${sizeStr}${file.outputPath ? ' · PDF siap' : ''}</div>
+      <div class="file-card__meta">${sizeStr}${file.outputPath ? ' · Siap' : ''}</div>
     </div>
 
     <span class="badge badge--${file.status}">${getBadgeText(file)}</span>
 
     <div class="file-card__actions">
+      ${state.currentTool === 'merge-pdf' && state.files.length > 1 ? `
+        ${index > 0 ? `<button class="btn-icon" data-action="move-up" data-index="${index}" title="Naikkan urutan">↑</button>` : ''}
+        ${index < state.files.length - 1 ? `<button class="btn-icon" data-action="move-down" data-index="${index}" title="Turunkan urutan">↓</button>` : ''}
+      ` : ''}
       ${file.outputPath ? `
         <button class="btn-icon" data-action="preview" data-index="${index}" title="Preview PDF">
           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
@@ -271,6 +298,40 @@ function initSettings() {
     updateSettings('compressionLevel', e.target.value);
   });
 
+  // Split settings
+  const splitModeSelect = document.getElementById('split-mode-select');
+  const splitRangeRow = document.getElementById('split-range-row');
+  const splitRangeInput = document.getElementById('split-range-input');
+
+  splitModeSelect?.addEventListener('change', e => {
+    state.toolSettings.splitMode = e.target.value;
+    if (splitRangeRow) {
+      splitRangeRow.style.display = e.target.value === 'range' ? 'flex' : 'none';
+    }
+  });
+
+  splitRangeInput?.addEventListener('input', e => {
+    state.toolSettings.splitRange = e.target.value.trim();
+  });
+
+  // Rotate settings
+  document.getElementById('rotate-angle-select')?.addEventListener('change', e => {
+    state.toolSettings.rotateAngle = parseInt(e.target.value, 10);
+  });
+
+  // Watermark settings
+  document.getElementById('watermark-text-input')?.addEventListener('input', e => {
+    state.toolSettings.watermarkText = e.target.value;
+  });
+
+  document.getElementById('watermark-opacity-select')?.addEventListener('change', e => {
+    state.toolSettings.watermarkOpacity = parseFloat(e.target.value);
+  });
+
+  document.getElementById('pagenum-checkbox')?.addEventListener('change', e => {
+    state.toolSettings.addPageNumbers = e.target.checked;
+  });
+
   // Output directory
   document.getElementById('output-dir-btn')?.addEventListener('click', async () => {
     const dir = await window.electronAPI.openFolderDialog();
@@ -288,42 +349,196 @@ function initSettings() {
   });
 }
 
+function initToolNav() {
+  const nav = document.getElementById('tool-nav');
+  if (!nav) return;
+
+  nav.addEventListener('click', (e) => {
+    const item = e.target.closest('.tool-nav__item');
+    if (!item) return;
+    const tool = item.dataset.tool;
+    if (tool && tool !== state.currentTool) {
+      switchTool(tool);
+    }
+  });
+}
+
+function switchTool(toolName) {
+  state.currentTool = toolName;
+
+  // Update tabs active state
+  document.querySelectorAll('.tool-nav__item').forEach(btn => {
+    btn.classList.toggle('is-active', btn.dataset.tool === toolName);
+  });
+
+  // Toggle settings sections
+  const sectionOffice    = document.getElementById('section-office-settings');
+  const sectionMerge     = document.getElementById('section-merge-settings');
+  const sectionSplit     = document.getElementById('section-split-settings');
+  const sectionRotate    = document.getElementById('section-rotate-settings');
+  const sectionWatermark = document.getElementById('section-watermark-settings');
+  const sectionImages    = document.getElementById('section-images-settings');
+  const sectionWord      = document.getElementById('section-word-settings');
+
+  if (sectionOffice)    sectionOffice.style.display    = toolName === 'office-to-pdf' ? 'flex' : 'none';
+  if (sectionMerge)     sectionMerge.style.display     = toolName === 'merge-pdf' ? 'flex' : 'none';
+  if (sectionSplit)     sectionSplit.style.display     = toolName === 'split-pdf' ? 'flex' : 'none';
+  if (sectionRotate)    sectionRotate.style.display    = toolName === 'rotate-pdf' ? 'flex' : 'none';
+  if (sectionWatermark) sectionWatermark.style.display = toolName === 'watermark-pdf' ? 'flex' : 'none';
+  if (sectionImages)    sectionImages.style.display    = toolName === 'images-to-pdf' ? 'flex' : 'none';
+  if (sectionWord)      sectionWord.style.display      = toolName === 'pdf-to-word' ? 'flex' : 'none';
+
+  // Adapt hero and dropzone
+  const heroTitle = document.querySelector('.main-hero__title');
+  const heroSub   = document.querySelector('.main-hero__subtitle');
+  const dropSub   = document.querySelector('.drop-zone__subtitle');
+
+  switch (toolName) {
+    case 'office-to-pdf':
+      if (heroTitle) heroTitle.textContent = 'From Office to PDF.';
+      if (heroSub) heroSub.textContent = 'One queue. Perfectly portable documents.';
+      if (dropSub) dropSub.textContent = '.docx · .pptx · .xlsx';
+      break;
+    case 'merge-pdf':
+      if (heroTitle) heroTitle.textContent = 'Merge PDF Documents.';
+      if (heroSub) heroSub.textContent = 'Combine multiple PDF files into one in queue order.';
+      if (dropSub) dropSub.textContent = '2 or more .pdf files';
+      break;
+    case 'split-pdf':
+      if (heroTitle) heroTitle.textContent = 'Split PDF Document.';
+      if (heroSub) heroSub.textContent = 'Extract pages or split entire document into individual pages.';
+      if (dropSub) dropSub.textContent = '.pdf';
+      break;
+    case 'rotate-pdf':
+      if (heroTitle) heroTitle.textContent = 'Rotate PDF Pages.';
+      if (heroSub) heroSub.textContent = 'Rotate pages 90°, 180°, or 270° clockwise.';
+      if (dropSub) dropSub.textContent = '.pdf';
+      break;
+    case 'watermark-pdf':
+      if (heroTitle) heroTitle.textContent = 'Watermark & Page Numbers.';
+      if (heroSub) heroSub.textContent = 'Add transparent diagonal text & footer page numbers.';
+      if (dropSub) dropSub.textContent = '.pdf';
+      break;
+    case 'images-to-pdf':
+      if (heroTitle) heroTitle.textContent = 'Images to PDF.';
+      if (heroSub) heroSub.textContent = 'Convert JPG and PNG images into a clean PDF document.';
+      if (dropSub) dropSub.textContent = '.jpg · .jpeg · .png';
+      break;
+    case 'pdf-to-word':
+      if (heroTitle) heroTitle.textContent = 'PDF to Word (.docx).';
+      if (heroSub) heroSub.textContent = 'Convert PDF files back to editable Word documents offline.';
+      if (dropSub) dropSub.textContent = '.pdf';
+      break;
+  }
+
+  // Filter or clear invalid files if user changed mode
+  updateConvertBtn();
+  updateFooter();
+  renderFileList();
+}
+
+function moveFileUp(index) {
+  if (index <= 0) return;
+  const temp = state.files[index];
+  state.files[index] = state.files[index - 1];
+  state.files[index - 1] = temp;
+  renderFileList();
+  updateFooter();
+}
+
+function moveFileDown(index) {
+  if (index >= state.files.length - 1) return;
+  const temp = state.files[index];
+  state.files[index] = state.files[index + 1];
+  state.files[index + 1] = temp;
+  renderFileList();
+  updateFooter();
+}
+
 async function getDefaultOutputDir() {
   // Fallback: Documents/PDFs
   return null;
 }
 
 // ============================================================
-// CONVERSION
+// CONVERSION & TOOL PIPELINES
 // ============================================================
 
+function getConvertBtnLabel() {
+  switch (state.currentTool) {
+    case 'office-to-pdf': return 'Convert All to PDF';
+    case 'merge-pdf':     return 'Merge All PDFs';
+    case 'split-pdf':     return 'Split PDF Document';
+    case 'rotate-pdf':    return 'Rotate All Pages';
+    case 'watermark-pdf': return 'Apply Watermark';
+    case 'images-to-pdf': return 'Convert Images to PDF';
+    case 'pdf-to-word':   return 'Convert to Word (.docx)';
+    default:              return 'Process Files';
+  }
+}
+
 /**
- * Mulai konversi semua file dengan status 'waiting'
+ * Mulai aksi tool aktif untuk file-file dalam antrian
  */
 async function startConversion() {
   if (state.isConverting) return;
   const pendingFiles = state.files.filter(f => f.status === 'waiting' || f.status === 'error');
   if (pendingFiles.length === 0) return;
 
+  const tool = state.currentTool;
+  if (tool === 'merge-pdf' && pendingFiles.length < 2) {
+    setFooterStatus('⚠ Butuh minimal 2 file PDF untuk digabungkan', 'Tambahkan file lagi');
+    return;
+  }
+
   state.isConverting = true;
   updateConvertBtn();
 
-  // Set semua file pending → waiting
   pendingFiles.forEach(f => { f.status = 'waiting'; f.progress = 0; });
   renderFileList();
-
-  // Footer update
-  setFooterStatus(`Converting 0 of ${pendingFiles.length} files...`, '');
   showGlobalProgress(0);
 
-  // Daftar file untuk API
+  try {
+    switch (tool) {
+      case 'office-to-pdf':
+        await runOfficeToPdf(pendingFiles);
+        break;
+      case 'merge-pdf':
+        await runMergePdfs(pendingFiles);
+        break;
+      case 'split-pdf':
+        await runSplitPdf(pendingFiles);
+        break;
+      case 'rotate-pdf':
+        await runRotatePdf(pendingFiles);
+        break;
+      case 'watermark-pdf':
+        await runWatermarkPdf(pendingFiles);
+        break;
+      case 'images-to-pdf':
+        await runImagesToPdf(pendingFiles);
+        break;
+      case 'pdf-to-word':
+        await runPdfToWord(pendingFiles);
+        break;
+    }
+  } catch (err) {
+    console.error('Execution error:', err);
+    setFooterStatus('Proses gagal', err.message);
+  } finally {
+    state.isConverting = false;
+    updateConvertBtn();
+    renderFileList();
+    setTimeout(() => hideGlobalProgress(), 2500);
+  }
+}
+
+async function runOfficeToPdf(pendingFiles) {
+  setFooterStatus(`Mengonversi 0 dari ${pendingFiles.length} file...`, '');
   const filesToConvert = pendingFiles.map(f => ({ path: f.path, name: f.name }));
 
-  // Register progress listener
   const removeListener = window.electronAPI.onProgress((data) => {
     const { fileIndex, percent, status, outputPath } = data;
-
-    // fileIndex = indeks dalam filesToConvert, tapi kita perlu indeks di state.files
     const file = pendingFiles[fileIndex];
     if (!file) return;
     const stateIdx = state.files.indexOf(file);
@@ -333,8 +548,6 @@ async function startConversion() {
     if (outputPath) file.outputPath = outputPath;
 
     updateFileCard(stateIdx);
-
-    // Hitung progress global
     const doneCount = pendingFiles.filter(f => f.status === 'done' || f.status === 'error').length;
     const globalPct = Math.round((doneCount / pendingFiles.length) * 100);
     updateGlobalProgress(globalPct);
@@ -348,34 +561,164 @@ async function startConversion() {
 
   try {
     await window.electronAPI.convertFiles(filesToConvert, {
-      pageSize:         state.settings.pageSize,
-      orientation:      state.settings.orientation,
-      outputDir:        state.settings.outputDir,
-      libreOfficePath:  state.settings.libreOfficePath,
+      pageSize:        state.settings.pageSize,
+      orientation:     state.settings.orientation,
+      outputDir:       state.settings.outputDir,
+      libreOfficePath: state.settings.libreOfficePath,
     });
-
-    // Selesai
-    const doneCount  = state.files.filter(f => f.status === 'done').length;
-    const errorCount = state.files.filter(f => f.status === 'error').length;
-
-    if (errorCount === 0) {
-      setFooterStatus(`✓ ${doneCount} file berhasil dikonversi`, '');
-    } else {
-      setFooterStatus(`${doneCount} berhasil, ${errorCount} gagal`, 'Periksa file yang bermasalah');
-    }
-
+    setFooterStatus(`✓ ${pendingFiles.length} file berhasil dikonversi ke PDF`, '');
     updateGlobalProgress(100);
-    setTimeout(() => hideGlobalProgress(), 2000);
-
-  } catch (err) {
-    console.error('Conversion error:', err);
-    setFooterStatus('Konversi gagal', err.message);
   } finally {
     removeListener();
-    state.isConverting = false;
-    updateConvertBtn();
-    renderFileList();
   }
+}
+
+async function runMergePdfs(pendingFiles) {
+  setFooterStatus('Menggabungkan file PDF...', '');
+  updateGlobalProgress(30);
+
+  const firstDir = pendingFiles[0].path.replace(/[\\/][^\\/]+$/, '');
+  const outputDir = state.settings.outputDir || firstDir;
+  const outputPath = `${outputDir}\\merged_${Date.now()}.pdf`;
+  const inputPaths = pendingFiles.map(f => f.path);
+
+  pendingFiles.forEach(f => { f.status = 'converting'; f.progress = 50; });
+  renderFileList();
+
+  const res = await window.electronAPI.mergePdfs(inputPaths, outputPath);
+  updateGlobalProgress(100);
+
+  pendingFiles.forEach(f => { f.status = 'done'; f.progress = 100; f.outputPath = res.outputPath; });
+  setFooterStatus(`✓ Berhasil menggabungkan ${pendingFiles.length} file PDF`, `Tersimpan di: ${res.outputPath}`);
+}
+
+async function runSplitPdf(pendingFiles) {
+  setFooterStatus('Memisahkan halaman PDF...', '');
+  const total = pendingFiles.length;
+
+  for (let i = 0; i < total; i++) {
+    const file = pendingFiles[i];
+    file.status = 'converting';
+    file.progress = 40;
+    updateFileCard(state.files.indexOf(file));
+
+    const fileDir = file.path.replace(/[\\/][^\\/]+$/, '');
+    const outputDir = state.settings.outputDir || `${fileDir}\\${file.name.replace(/\.pdf$/i, '')}_split`;
+
+    const outFiles = await window.electronAPI.splitPdf(file.path, outputDir, {
+      mode: state.toolSettings.splitMode,
+      ranges: state.toolSettings.splitRange,
+    });
+
+    file.status = 'done';
+    file.progress = 100;
+    file.outputPath = outFiles[0] || outputDir;
+    updateFileCard(state.files.indexOf(file));
+    updateGlobalProgress(Math.round(((i + 1) / total) * 100));
+  }
+
+  setFooterStatus(`✓ Selesai memisahkan PDF`, 'File tersimpan di folder split');
+}
+
+async function runRotatePdf(pendingFiles) {
+  setFooterStatus('Memutar halaman PDF...', '');
+  const total = pendingFiles.length;
+
+  for (let i = 0; i < total; i++) {
+    const file = pendingFiles[i];
+    file.status = 'converting';
+    file.progress = 50;
+    updateFileCard(state.files.indexOf(file));
+
+    const outputPath = file.path.replace(/\.pdf$/i, '_rotated.pdf');
+    const res = await window.electronAPI.rotatePdf(file.path, outputPath, state.toolSettings.rotateAngle);
+
+    file.status = 'done';
+    file.progress = 100;
+    file.outputPath = res.outputPath;
+    updateFileCard(state.files.indexOf(file));
+    updateGlobalProgress(Math.round(((i + 1) / total) * 100));
+  }
+
+  setFooterStatus(`✓ ${total} file PDF berhasil diputar`, '');
+}
+
+async function runWatermarkPdf(pendingFiles) {
+  setFooterStatus('Menambahkan watermark & nomor halaman...', '');
+  const total = pendingFiles.length;
+
+  for (let i = 0; i < total; i++) {
+    const file = pendingFiles[i];
+    file.status = 'converting';
+    file.progress = 50;
+    updateFileCard(state.files.indexOf(file));
+
+    const outputPath = file.path.replace(/\.pdf$/i, '_watermarked.pdf');
+    await window.electronAPI.watermarkPdf(
+      file.path,
+      outputPath,
+      state.toolSettings.watermarkText || 'CONFIDENTIAL',
+      { opacity: state.toolSettings.watermarkOpacity }
+    );
+
+    if (state.toolSettings.addPageNumbers) {
+      await window.electronAPI.addPageNumbers(outputPath, outputPath);
+    }
+
+    file.status = 'done';
+    file.progress = 100;
+    file.outputPath = outputPath;
+    updateFileCard(state.files.indexOf(file));
+    updateGlobalProgress(Math.round(((i + 1) / total) * 100));
+  }
+
+  setFooterStatus(`✓ Watermark berhasil disematkan`, '');
+}
+
+async function runImagesToPdf(pendingFiles) {
+  setFooterStatus('Mengonversi gambar ke PDF...', '');
+  updateGlobalProgress(40);
+
+  const firstDir = pendingFiles[0].path.replace(/[\\/][^\\/]+$/, '');
+  const outputDir = state.settings.outputDir || firstDir;
+  const outputPath = `${outputDir}\\images_${Date.now()}.pdf`;
+  const inputPaths = pendingFiles.map(f => f.path);
+
+  pendingFiles.forEach(f => { f.status = 'converting'; f.progress = 60; });
+  renderFileList();
+
+  const res = await window.electronAPI.imagesToPdf(inputPaths, outputPath);
+  updateGlobalProgress(100);
+
+  pendingFiles.forEach(f => { f.status = 'done'; f.progress = 100; f.outputPath = res.outputPath; });
+  setFooterStatus(`✓ Berhasil membuat PDF dari ${pendingFiles.length} gambar`, `Tersimpan di: ${res.outputPath}`);
+}
+
+async function runPdfToWord(pendingFiles) {
+  setFooterStatus('Mengonversi PDF ke Word (.docx)...', '');
+  const total = pendingFiles.length;
+
+  for (let i = 0; i < total; i++) {
+    const file = pendingFiles[i];
+    file.status = 'converting';
+    file.progress = 50;
+    updateFileCard(state.files.indexOf(file));
+
+    const fileDir = file.path.replace(/[\\/][^\\/]+$/, '');
+    const outputDir = state.settings.outputDir || fileDir;
+
+    const outDocx = await window.electronAPI.convertPdfToWord(file.path, outputDir, {
+      libreOfficePath: state.settings.libreOfficePath,
+    });
+
+    file.status = 'done';
+    file.progress = 100;
+    file.outputPath = outDocx;
+    updateFileCard(state.files.indexOf(file));
+    updateGlobalProgress(Math.round(((i + 1) / total) * 100));
+  }
+
+  setFooterStatus(`✓ ${total} PDF berhasil dikonversi ke dokumen Word`, '');
 }
 
 // ============================================================
@@ -414,15 +757,16 @@ function updateConvertBtn() {
   if (!btn) return;
   const hasPending = state.files.some(f => f.status === 'waiting' || f.status === 'error');
   btn.disabled = !hasPending || state.isConverting;
+  const label = getConvertBtnLabel();
   btn.innerHTML = state.isConverting
     ? `<svg class="spin" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
          fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-       </svg> Converting...`
+       </svg> Memproses...`
     : `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
          fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-       </svg> Convert All Files <span style="font-size:var(--text-xs);opacity:0.7;">⌘↵</span>`;
+       </svg> ${label} <span style="font-size:var(--text-xs);opacity:0.7;">⌘↵</span>`;
 }
 
 function setFooterStatus(text, sub) {
@@ -559,7 +903,11 @@ async function init() {
     const file   = state.files[index];
     if (!file) return;
 
-    if (action === 'remove') {
+    if (action === 'move-up') {
+      moveFileUp(index);
+    } else if (action === 'move-down') {
+      moveFileDown(index);
+    } else if (action === 'remove') {
       removeFile(index);
     } else if (action === 'open' && file.outputPath) {
       await window.electronAPI.openFile(file.outputPath);
@@ -576,7 +924,8 @@ async function init() {
   document.getElementById('btn-minimize')?.addEventListener('click', () => window.electronAPI.windowMinimize());
   document.getElementById('btn-maximize')?.addEventListener('click', () => window.electronAPI.windowMaximize());
 
-  // 11. Initial state render
+  // 11. Initial state render & Tool Nav
+  initToolNav();
   updateFooter();
   updateQueueHeader();
   setFooterStatus('Ready', 'Drop files or click Browse to start');

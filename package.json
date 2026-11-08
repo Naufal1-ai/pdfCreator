@@ -1,10 +1,10 @@
 {
   "name": "pdfconverter",
-  "version": "1.0.0",
-  "description": "> Aplikasi desktop modern berbasis Electron untuk mengkonversi file Word, PowerPoint, dan Excel ke PDF secara offline — privasi terjaga, tanpa data dikirim ke server manapun.",
+  "version": "2.0.0",
+  "description": "Aplikasi desktop modern berbasis Electron bergaya iLovePDF Suite untuk konversi Office ke PDF, manipulasi PDF (Merge, Split, Rotate, Watermark, Page Number, Images to PDF, dan PDF to Word) secara 100% offline — privasi terjamin tanpa server eksternal.",
   "main": "src/main/main.js",
   "scripts": {
-    "dev": "electron .",
+    "dev": "node -e \"delete process.env.ELECTRON_RUN_AS_NODE; const p = require('child_process').spawn(require('electron'), ['.'], { stdio: 'inherit' }); p.on('close', process.exit);\"",
     "build": "electron-builder",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

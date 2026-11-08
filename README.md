@@ -1,30 +1,35 @@
-# 📄 WordToPDF Converter
+# 📄 WordToPDF Studio · iLovePDF Offline Suite
 
-> Aplikasi desktop modern berbasis Electron untuk mengkonversi file Word, PowerPoint, dan Excel ke PDF secara offline — privasi terjaga, tanpa data dikirim ke server manapun.
+> Aplikasi desktop modern berbasis Electron bergaya **iLovePDF Suite** untuk mengkonversi dokumen Office ke PDF, manipulasi PDF (Merge, Split, Rotate, Watermark, Page Number, Images to PDF, dan PDF to Word) secara **100% offline** — privasi terjaga, tanpa data dikirim ke server manapun.
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Fitur Utama (iLovePDF Style Tools)
 
-- 🖱️ **Drag & Drop** — Seret file langsung ke aplikasi
-- 📦 **Batch Conversion** — Konversi banyak file sekaligus
-- 👁️ **Preview PDF** — Lihat hasil sebelum disimpan
-- 📐 **Pengaturan Halaman** — Pilih ukuran (A4, Letter, dll) dan orientasi (portrait/landscape)
-- 🗜️ **Kompres PDF** — Kurangi ukuran file output
-- 🔒 **100% Offline** — Semua proses berjalan lokal di komputer kamu
-- 🌙 **Dark Mode** — Tampilan modern dan profesional
+- 📝 **Office to PDF** — Konversi file Word (`.docx`, `.doc`), PowerPoint (`.pptx`, `.ppt`), Excel (`.xlsx`, `.xls`), CSV, dan TXT ke PDF dengan layout presisi via LibreOffice.
+- 🗂️ **Merge PDF** — Gabungkan multi-file PDF menjadi satu dokumen utuh dengan urutan yang dapat diatur sesuka hati.
+- ✂️ **Split PDF** — Pisahkan seluruh halaman menjadi file terpisah atau ekstrak rentang halaman kustom (misal `1-3, 5`).
+- 🔄 **Rotate PDF** — Putar orientasi halaman PDF 90°, 180°, atau 270° secara permanen.
+- 🛡️ **Watermark & Page Numbers** — Sematkan teks watermark diagonal transparan dan footer nomor halaman (`Halaman X dari Y`).
+- 🖼️ **Images to PDF** — Konversi gambar JPG, JPEG, dan PNG menjadi satu file PDF yang rapi.
+- 🔁 **PDF to Word (.docx)** — Kembalikan dokumen PDF ke file Microsoft Word (.docx) yang dapat diedit secara offline.
+- 🗜️ **Kompres PDF** — Perkecil ukuran file PDF (Level Low, Medium, High).
+- 👁️ **PDF Preview** — Pratinjau dokumen langsung di dalam aplikasi menggunakan engine PDF.js.
+- 🔒 **100% Offline & Private** — Semua data diproses lokal di mesin Anda.
 
 ---
 
 ## 🧰 Format yang Didukung
 
-| Format Input | Ekstensi |
-|---|---|
-| Microsoft Word | `.docx`, `.doc` |
-| Microsoft PowerPoint | `.pptx`, `.pptx` |
-| Microsoft Excel | `.xlsx`, `.xls` |
-
-**Output:** `.pdf`
+| Kategori | Format Input | Format Output |
+|---|---|---|
+| Office to PDF | `.docx`, `.doc`, `.pptx`, `.ppt`, `.xlsx`, `.xls`, `.csv`, `.txt` | `.pdf` |
+| Merge PDF | `.pdf` (minimal 2 file) | `.pdf` |
+| Split PDF | `.pdf` | `.pdf` (satu atau banyak file) |
+| Rotate PDF | `.pdf` | `.pdf` |
+| Watermark PDF | `.pdf` | `.pdf` |
+| Images to PDF | `.png`, `.jpg`, `.jpeg` | `.pdf` |
+| PDF to Word | `.pdf` | `.docx` |
 
 ---
 

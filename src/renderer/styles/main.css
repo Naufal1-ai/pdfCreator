@@ -213,6 +213,75 @@ input, select { font-family: inherit; }
 }
 
 /* ─────────────────────────────────────────
+   4b. TOOL SUITE NAVIGATION (iLovePDF Style)
+   ───────────────────────────────────────── */
+.tool-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 6px var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-hairline);
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: none;
+}
+.tool-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.tool-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: transparent;
+  color: var(--color-ink-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.tool-nav__item:hover {
+  color: var(--color-ink-primary);
+  background: var(--color-surface-hover);
+}
+
+.tool-nav__item.is-active {
+  color: #ffffff;
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 12px var(--color-accent-dim);
+}
+
+.input-custom {
+  width: 100%;
+  padding: 6px 10px;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-primary);
+  font-size: var(--text-xs);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+.input-custom:focus {
+  border-color: var(--color-accent);
+}
+
+.settings-desc {
+  font-size: var(--text-xs);
+  color: var(--color-ink-secondary);
+  line-height: var(--leading-snug);
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────
    5. SIDEBAR — SETTINGS PANEL
    ───────────────────────────────────────── */
 .settings-panel {

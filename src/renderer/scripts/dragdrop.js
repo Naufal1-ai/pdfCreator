@@ -3,14 +3,32 @@
  * Fase 4.2 — WordToPDF Converter
  */
 
-const VALID_EXTENSIONS = ['.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls'];
+/**
+ * Dapatkan daftar ekstensi yang valid sesuai mode tool aktif
+ */
+function getValidExtensions(toolMode) {
+  const mode = toolMode || (window.state ? window.state.currentTool : 'office-to-pdf');
+  switch (mode) {
+    case 'office-to-pdf':
+      return ['.docx', '.doc', '.pptx', '.ppt', '.xlsx', '.xls'];
+    case 'images-to-pdf':
+      return ['.jpg', '.jpeg', '.png'];
+    case 'merge-pdf':
+    case 'split-pdf':
+    case 'rotate-pdf':
+    case 'watermark-pdf':
+    case 'pdf-to-word':
+    default:
+      return ['.pdf'];
+  }
+}
 
 /**
  * Cek apakah file memiliki ekstensi yang valid
  */
-function isValidFile(file) {
+function isValidFile(file, toolMode) {
   const ext = '.' + file.name.split('.').pop().toLowerCase();
-  return VALID_EXTENSIONS.includes(ext);
+  return getValidExtensions(toolMode).includes(ext);
 }
 
 /**
@@ -103,7 +121,18 @@ function initDragDrop(dropZone, onFilesAdded) {
  */
 async function triggerFileBrowse(onFilesAdded) {
   try {
-    const filePaths = await window.electronAPI.openFileDialog();
+    const currentMode = window.state ? window.state.currentTool : 'office-to-pdf';
+    let filters;
+
+    if (currentMode === 'office-to-pdf') {
+      filters = [{ name: 'Office Files', extensions: ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls'] }];
+    } else if (currentMode === 'images-to-pdf') {
+      filters = [{ name: 'Image Files', extensions: ['jpg', 'jpeg', 'png'] }];
+    } else {
+      filters = [{ name: 'PDF Documents', extensions: ['pdf'] }];
+    }
+
+    const filePaths = await window.electronAPI.openFileDialog({ filters });
     if (!filePaths || filePaths.length === 0) return;
 
     // Buat File-like objects dari path
@@ -124,15 +153,18 @@ async function triggerFileBrowse(onFilesAdded) {
  */
 function showInvalidFileHint(invalidFiles) {
   const names = invalidFiles.map(f => f.name).join(', ');
-  console.warn(`File tidak didukung: ${names}. Hanya .docx, .pptx, .xlsx yang diterima.`);
-  // UI feedback bisa ditampilkan lewat footer status
+  const mode = window.state ? window.state.currentTool : 'office-to-pdf';
+  const validExts = getValidExtensions(mode).join(', ');
+  console.warn(`File tidak didukung: ${names}. Format yang didukung: ${validExts}`);
+  
+  // UI feedback ditampilkan lewat footer status
   const statusEl = document.getElementById('footer-status-text');
   const subEl = document.getElementById('footer-status-sub');
   if (statusEl) {
     const prev = statusEl.textContent;
     const prevSub = subEl.textContent;
     statusEl.textContent = '⚠ Format tidak didukung';
-    if (subEl) subEl.textContent = `${names} — hanya .docx, .pptx, .xlsx`;
+    if (subEl) subEl.textContent = `${names} — hanya ${validExts}`;
     setTimeout(() => {
       statusEl.textContent = prev;
       if (subEl) subEl.textContent = prevSub;

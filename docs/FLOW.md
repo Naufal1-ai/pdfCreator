@@ -237,6 +237,7 @@ graph TB
             MJ["main.js\nIPC Handlers"]
             CV["converter.js\nLibreOffice Wrapper"]
             CP["compressor.js\npdf-lib"]
+            PT["pdfTools.js\niLovePDF Suite Engine"]
         end
     end
 
@@ -247,14 +248,38 @@ graph TB
 
     subgraph OUTPUT ["Output"]
         PDFOUT[PDF Files]
+        DOCXOUT[DOCX Files]
     end
 
     HTML --> APPJS & DD & PV
     APPJS & DD & PV --> PRE
     PRE --> MJ
-    MJ --> CV & CP
-    CV --> LO --> PDFOUT
+    MJ --> CV & CP & PT
+    CV --> LO --> PDFOUT & DOCXOUT
     CP --> PDFOUT
+    PT --> PDFOUT
     PV --> PDFJS
     CSS --> HTML
+```
+
+---
+
+## 9. 🎛️ Alur Multi-Tool Routing (iLovePDF Style Suite)
+
+```mermaid
+flowchart TD
+    A([User Pilih Tool di Header/Sidebar]) --> B{Tool Aktif}
+
+    B -- "Office to PDF" --> C1["Ekstensi: .docx, .pptx, .xlsx\nEngine: LibreOffice CLI"]
+    B -- "Merge PDF" --> C2["Ekstensi: .pdf (min. 2 file)\nEngine: pdfTools.mergePdfs"]
+    B -- "Split PDF" --> C3["Ekstensi: .pdf\nEngine: pdfTools.splitPdf (range/all)"]
+    B -- "Rotate PDF" --> C4["Ekstensi: .pdf\nEngine: pdfTools.rotatePdf (90/180/270)"]
+    B -- "Watermark PDF" --> C5["Ekstensi: .pdf\nEngine: pdfTools.watermarkPdf"]
+    B -- "Images to PDF" --> C6["Ekstensi: .jpg, .png\nEngine: pdfTools.imagesToPdf"]
+    B -- "PDF to Word" --> C7["Ekstensi: .pdf\nEngine: converter.convertPdfToWord"]
+
+    C1 & C2 & C3 & C4 & C5 & C6 & C7 --> D["Update Dynamic Settings & Drop Zone UI"]
+    D --> E["User Drop/Pilih File & Tekan Tombol Aksi"]
+    E --> F["Invoke IPC Channel Sesuai Tool"]
+    F --> G["Hasil Tersimpan di Output Directory"]
 ```

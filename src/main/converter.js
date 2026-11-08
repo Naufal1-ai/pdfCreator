@@ -120,4 +120,63 @@ async function convertBatch(files, outputDir, options = {}, onProgress = () => {
   return results;
 }
 
-module.exports = { detectLibreOfficePath, convertFile, convertBatch };
+/**
+ * Konversi satu file PDF ke dokumen Word (.docx) menggunakan LibreOffice CLI.
+ * @param {string} inputPath - Path absolut file input (.pdf)
+ * @param {string} outputDir - Direktori tujuan file docx
+ * @param {object} options - { libreOfficePath }
+ * @returns {Promise<string>} Path absolut file docx hasil konversi
+ */
+async function convertPdfToWord(inputPath, outputDir, options = {}) {
+  const {
+    libreOfficePath = await detectLibreOfficePath(),
+  } = options;
+
+  if (!libreOfficePath) {
+    throw new Error('LIBREOFFICE_NOT_FOUND');
+  }
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  return new Promise((resolve, reject) => {
+    const args = [
+      '--headless',
+      '--infilter=writer_pdf_import',
+      '--convert-to', 'docx:MS Word 2007 XML',
+      '--outdir', outputDir,
+      inputPath,
+    ];
+
+    const proc = spawn(libreOfficePath, args, {
+      windowsHide: true,
+    });
+
+    let stderr = '';
+    proc.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    proc.on('close', (code) => {
+      if (code !== 0) {
+        return reject(new Error(`LibreOffice exit code ${code}: ${stderr}`));
+      }
+
+      const inputBasename = path.basename(inputPath, path.extname(inputPath));
+      const outputPath = path.join(outputDir, `${inputBasename}.docx`);
+
+      if (!fs.existsSync(outputPath)) {
+        return reject(new Error(`Dokumen Word tidak ditemukan setelah konversi: ${outputPath}`));
+      }
+
+      resolve(outputPath);
+    });
+
+    proc.on('error', (err) => {
+      reject(new Error(`Gagal menjalankan LibreOffice: ${err.message}`));
+    });
+  });
+}
+
+module.exports = { detectLibreOfficePath, convertFile, convertBatch, convertPdfToWord };

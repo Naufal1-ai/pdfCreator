@@ -14,8 +14,12 @@
 | 3 | UI Design System | ✅ Selesai | 45 menit |
 | 4 | UI Components & Interaksi | ✅ Selesai | 60 menit |
 | 5 | Integrasi & Testing | ✅ Selesai | 30 menit |
-| 6 | Polish & Build | ✅ Selesai | 30 menit |
-| **Total** | | | **~3.5 jam** |
+| 6 | Polish & Build v1.0 | ✅ Selesai | 30 menit |
+| 7 | Core Engine iLovePDF Suite (pdf-lib & LibreOffice) | ✅ Selesai | 45 menit |
+| 8 | UI Multi-Tool Navigation (iLovePDF Style Suite) | 🔄 Sedang dikerjakan | 60 menit |
+| 9 | Integrasi & End-to-End Testing Suite | ⬜ Belum dikerjakan | 30 menit |
+| 10 | Polish & Build Release v2.0 | ⬜ Belum dikerjakan | 30 menit |
+| **Total** | | | **~6 jam** |
 
 **Keterangan Status:**
 - ⬜ Belum dikerjakan
@@ -229,6 +233,96 @@ await window.electronAPI.convertFiles(
 
 ---
 
+## 📋 Fase 7 — Core Engine iLovePDF Suite (pdf-lib & LibreOffice)
+
+**Tujuan:** Membangun seluruh logic pemrosesan PDF lanjutan bergaya iLovePDF secara 100% offline.
+
+### Checklist:
+- [x] **7.1** Buat `src/main/pdfTools.js` menggunakan `pdf-lib`:
+  - [x] `mergePdfs(inputPaths, outputPath)` — Gabungkan multi-file PDF menjadi 1 dokumen terurut
+  - [x] `splitPdf(inputPath, outputDir, options)` — Pisahkan seluruh halaman atau ekstrak rentang halaman tertentu (misal: "1-3, 5")
+  - [x] `rotatePdf(inputPath, outputPath, degrees)` — Rotasi seluruh halaman PDF (90°, 180°, 270°)
+  - [x] `watermarkPdf(inputPath, outputPath, watermarkText, options)` — Teks watermark diagonal transparan
+  - [x] `addPageNumbers(inputPath, outputPath, format)` — Footer nomor halaman format kustom (`Halaman {n} dari {total}`)
+  - [x] `imagesToPdf(imagePaths, outputPath)` — Konversi gambar JPG/PNG ke satu file PDF
+- [x] **7.2** Buat & jalankan unit test script `test_files/test_pdf_tools.js` (semua fungsi diverifikasi PASS)
+- [x] **7.3** Tambahkan fungsi `convertPdfToWord(inputPath, outputDir, options)` di `src/main/converter.js` menggunakan LibreOffice CLI (`--infilter="writer_pdf_import" --convert-to docx`)
+- [x] **7.4** Daftarkan semua IPC Handlers baru di `src/main/main.js`:
+  - `merge-pdfs`
+  - `split-pdf`
+  - `rotate-pdf`
+  - `watermark-pdf`
+  - `add-page-numbers`
+  - `images-to-pdf`
+  - `pdf-to-word`
+- [x] **7.5** Expose fungsi-fungsi baru tersebut di `src/preload/preload.js` via `contextBridge`
+
+### Deliverable:
+> Semua engine manipulasi PDF ala iLovePDF berfungsi penuh di background process dan dapat dipanggil lewat Electron IPC.
+
+---
+
+## 📋 Fase 8 — UI Multi-Tool Navigation (iLovePDF Style Suite)
+
+**Tujuan:** Mengadaptasi UI menjadi multi-tool hub modern ala iLovePDF dengan tetap mematuhi `docs/DESIGN.md` (Dark mode, tokenized colors, spring timing).
+
+### Checklist:
+- [ ] **8.1** Tambahkan Navigation Hub / Tool Switcher di `src/renderer/index.html`:
+  - Pilihan Tool: `Office to PDF`, `Merge PDF`, `Split PDF`, `Rotate PDF`, `Watermark PDF`, `Images to PDF`, `PDF to Word`
+  - SVG Lucide Icon untuk setiap mode
+- [ ] **8.2** Update styles di `src/renderer/styles/main.css`:
+  - Segmented control / mode bar styling di bawah titlebar atau sidebar
+  - Dynamic fields container (input watermark text, range split, dropdown rotasi, dll)
+  - Layout file card yang mendukung reordering (drag / tombol up-down untuk Merge PDF)
+- [ ] **8.3** Update `src/renderer/scripts/dragdrop.js`:
+  - Validasi filter ekstensi dinamis sesuai mode aktif:
+    - Office to PDF: `.docx, .doc, .pptx, .ppt, .xlsx, .xls`
+    - Images to PDF: `.jpg, .jpeg, .png`
+    - PDF Tools (Merge, Split, Rotate, Watermark, PDF to Word): `.pdf`
+- [ ] **8.4** Update `src/renderer/scripts/app.js`:
+  - Dynamic Mode Switcher state (`currentMode`)
+  - Render opsi kontekstual di Sidebar Settings sesuai mode yang aktif
+  - Tombol aksi utama dinamis (misal: "Convert to PDF", "Merge Files", "Split Pages", "Apply Watermark")
+  - Panggilan IPC terhubung ke handler backend yang tepat
+
+### Deliverable:
+> Pengguna dapat berganti tool dengan satu klik dan melakukan operasi manipulasi PDF secara intuitif.
+
+---
+
+## 📋 Fase 9 — Integrasi & End-to-End Testing Suite
+
+**Tujuan:** Memverifikasi fungsionalitas seluruh tool suite secara end-to-end melalui UI dan console.
+
+### Test Scenarios Suite:
+| No | Tool Mode | Skenario | Expected Result |
+|---|---|---|---|
+| 9.1 | Merge PDF | Menggabungkan 2+ file PDF | File PDF baru berisi seluruh halaman gabungan terurut |
+| 9.2 | Split PDF | Mode range "1" dan mode split all | Terbentuk file PDF hasil pemisahan |
+| 9.3 | Rotate PDF | Putar 90° searah jarum jam | Halaman PDF terotasi 90° |
+| 9.4 | Watermark PDF | Beri watermark teks kustom | Watermark diagonal muncul di setiap halaman |
+| 9.5 | Images to PDF | Masukkan gambar .png / .jpg | PDF tercipta berisi gambar dengan skala pas |
+| 9.6 | PDF to Word | Konversi .pdf ke .docx | Dokumen Word (.docx) terbuat via LibreOffice |
+| 9.7 | Office to PDF | Konversi .docx/.xlsx ke .pdf | Fitur lama tetap berfungsi tanpa regresi |
+
+### Checklist:
+- [ ] **9.1** Semua skenario 9.1 - 9.7 PASS
+- [ ] **9.2** Tidak ada error di console DevTools
+- [ ] **9.3** UI tetap konsisten dan responsif
+
+---
+
+## 📋 Fase 10 — Polish & Build Release v2.0
+
+**Tujuan:** Finalisasi build v2.0 dengan installer baru dan dokumentasi lengkap.
+
+### Checklist:
+- [ ] **10.1** Update `package.json` version menjadi `2.0.0` dan description mencakup PDF Suite
+- [ ] **10.2** Update `README.md` dengan panduan penggunaan semua tool iLovePDF
+- [ ] **10.3** Jalankan `npm run build` dan verifikasi installer `.exe` baru tercipta
+
+---
+
 ## 🔑 Keputusan Teknis Penting
 
 | Keputusan | Alasan |
@@ -272,4 +366,6 @@ Saat mengeksekusi plan ini:
 
 | Waktu | Fase | Aksi | Status |
 |---|---|---|---|
-| - | - | Dokumen dibuat | ✅ |
+| - | 0-6 | Pembuatan v1.0 WordToPDF Converter | ✅ Selesai |
+| 2026-11-08 | 7 | Implementasi lengkap `src/main/pdfTools.js`, `convertPdfToWord` di `converter.js`, integrasi IPC handlers di `main.js`, dan expose di `preload.js` | ✅ Selesai |
+| 2026-11-08 | 8 | Memulai implementasi UI Multi-Tool Navigation (iLovePDF Style Suite) | 🔄 Berjalan |

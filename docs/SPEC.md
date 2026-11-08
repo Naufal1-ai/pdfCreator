@@ -15,54 +15,68 @@
 
 ## 🎯 Tujuan Proyek
 
-Membangun aplikasi desktop berbasis **Electron** yang dapat mengkonversi file Office (`.docx`, `.doc`, `.pptx`, `.xlsx`) ke format **PDF** secara **offline** menggunakan **LibreOffice** sebagai engine konversi, dengan UI yang modern, dark mode, dan profesional.
+Membangun aplikasi desktop berbasis **Electron** bergaya **iLovePDF Offline Suite** yang dapat mengkonversi file Office (`.docx`, `.doc`, `.pptx`, `.xlsx`), gambar (`.jpg`, `.png`), dan memanipulasi dokumen PDF (Merge, Split, Rotate, Watermark, Page Number, Compress, serta PDF to Word) secara **100% offline** menggunakan perpaduan **LibreOffice CLI** dan **pdf-lib**, dengan antarmuka modern bernuansa dark mode profesional.
 
 ---
 
 ## 🏛️ Arsitektur Sistem
 
 ```
-[User Interface (Renderer Process)]
-        ↕ (IPC via preload.js)
-[Main Process (Node.js / Electron)]
-        ↕ (child_process.spawn)
-[LibreOffice CLI / soffice]
-        ↓
-[PDF Output File]
+                 [User Interface (Renderer Process)]
+                                  ↕ (IPC via preload.js)
+                 [Main Process (Node.js / Electron)]
+                  /                                \
+   (child_process.spawn)                    (pdf-lib Pure JS)
+  [LibreOffice Headless CLI]             [PDF Document Manipulation]
+   • Office to PDF (.docx, .xlsx, .pptx)  • Merge PDF
+   • PDF to Word (.docx)                  • Split & Extract Pages
+                                          • Rotate Pages
+                                          • Watermark & Page Numbers
+                                          • Images to PDF (.jpg, .png)
+                                          • Compress PDF
+                  \                                /
+                   ↓                              ↓
+                         [Output File / Result]
 ```
 
 ### Deskripsi Layer:
-- **Renderer Process** — UI yang dilihat user (HTML/CSS/JS), berjalan di Chromium
-- **Main Process** — Logic bisnis (konversi, file system, dll), berjalan di Node.js
-- **Preload Script** — Jembatan aman antara renderer dan main process via `contextBridge`
-- **LibreOffice** — Engine konversi, dipanggil via `child_process.spawn` dengan argumen headless
+- **Renderer Process** — UI multi-tool hub (HTML/CSS/JS), berjalan di Chromium dengan tokenized dark mode.
+- **Main Process** — Orkestrator logika bisnis (konversi, manipulasi PDF, dialog sistem, IPC).
+- **Preload Script** — Jembatan aman `contextBridge` antara renderer dan main process.
+- **LibreOffice CLI** — Engine konversi format Office (`soffice --headless`).
+- **pdf-lib Engine** — Engine manipulasi PDF murni berbasis JavaScript, berjalan cepat dan aman tanpa dependensi biner tambahan.
 
 ---
 
-## 📁 Struktur File yang Harus Dibuat
+## 📁 Struktur File Proyek
 
 ```
 pdfConverter/
 ├── docs/
-│   ├── SPEC.md         ← [FILE INI]
-│   └── PLAN.md
+│   ├── SPEC.md         ← [FILE INI] Spesifikasi teknis
+│   ├── PLAN.md         ← Rencana 10 fase & checklist
+│   ├── FLOW.md         ← Diagram alur eksekusi
+│   ├── DESIGN.md       ← Panduan design system UI
+│   └── AGENT.md        ← Aturan kerja AI agent
 ├── src/
 │   ├── main/
 │   │   ├── main.js         ← Electron entry point, window management, IPC handlers
-│   │   ├── converter.js    ← LibreOffice CLI wrapper, conversion logic
-│   │   └── compressor.js   ← PDF compression logic (menggunakan pdf-lib)
+│   │   ├── converter.js    ← LibreOffice CLI wrapper (Office to PDF, PDF to Word)
+│   │   ├── compressor.js   ← PDF compression logic (menggunakan pdf-lib)
+│   │   └── pdfTools.js     ← iLovePDF tools (Merge, Split, Rotate, Watermark, Page Numbers, Images to PDF)
 │   ├── renderer/
-│   │   ├── index.html      ← Single page UI
+│   │   ├── index.html      ← Multi-tool single page UI
 │   │   ├── styles/
-│   │   │   └── main.css    ← Dark mode design system
+│   │   │   └── main.css    ← Dark mode design system & tool switcher styles
 │   │   └── scripts/
-│   │       ├── app.js      ← Main UI controller
-│   │       ├── dragdrop.js ← Drag & drop file handling
+│   │       ├── app.js      ← Main UI controller & tool mode state
+│   │       ├── dragdrop.js ← Dynamic drag & drop file handling
 │   │       └── preview.js  ← PDF.js preview integration
 │   └── preload/
 │       └── preload.js      ← contextBridge IPC bridge
 ├── assets/
 │   └── icon.png            ← App icon
+├── test_files/             ← File sampel & automated test suite
 ├── package.json
 ├── README.md
 └── .gitignore
@@ -109,13 +123,21 @@ pdfConverter/
 
 | Channel | Direction | Deskripsi |
 |---|---|---|
-| `convert-files` | Renderer → Main | Terima array file path, trigger konversi |
+| `convert-files` | Renderer → Main | Terima array file path, trigger konversi Office ke PDF |
 | `conversion-progress` | Main → Renderer | Update progress per file (%) |
 | `conversion-complete` | Main → Renderer | Kirim path PDF hasil konversi |
 | `conversion-error` | Main → Renderer | Kirim pesan error |
-| `open-file-dialog` | Renderer → Main | Buka native file picker |
+| `open-file-dialog` | Renderer → Main | Buka native file picker sesuai filter tool aktif |
+| `open-folder-dialog` | Renderer → Main | Buka native folder picker untuk output |
 | `get-libreoffice-path` | Renderer → Main | Deteksi path LibreOffice otomatis |
-| `compress-pdf` | Renderer → Main | Trigger kompresi PDF |
+| `compress-pdf` | Renderer → Main | Trigger kompresi PDF (low / medium / high) |
+| `merge-pdfs` | Renderer → Main | Gabungkan array file PDF menjadi satu file output |
+| `split-pdf` | Renderer → Main | Pisahkan PDF (mode 'all' atau 'range') |
+| `rotate-pdf` | Renderer → Main | Putar halaman PDF (90°, 180°, 270°) |
+| `watermark-pdf` | Renderer → Main | Sisipkan teks watermark diagonal |
+| `add-page-numbers` | Renderer → Main | Sisipkan footer penomoran halaman |
+| `images-to-pdf` | Renderer → Main | Konversi gambar .png/.jpg menjadi satu file PDF |
+| `convert-pdf-to-word` | Renderer → Main | Konversi file .pdf ke dokumen .docx via LibreOffice |
 
 **Window Config:**
 ```javascript
@@ -188,20 +210,63 @@ const LIBREOFFICE_PATHS = [
 
 ---
 
+### `src/main/pdfTools.js`
+
+**Fungsi:** Manipulasi dokumen PDF murni JavaScript menggunakan `pdf-lib` (100% offline, tanpa native dependency).
+
+**Fungsi yang diekspor:**
+```javascript
+// Gabungkan beberapa file PDF menjadi satu file
+async function mergePdfs(inputPaths, outputPath)
+
+// Pisahkan file PDF (mode: 'all' atau 'range')
+async function splitPdf(inputPath, outputDir, options = { mode: 'all', ranges: '' })
+
+// Putar seluruh halaman PDF (90, 180, 270 derajat)
+async function rotatePdf(inputPath, outputPath, rotationDegrees = 90)
+
+// Tambahkan teks watermark diagonal transparan di setiap halaman
+async function watermarkPdf(inputPath, outputPath, watermarkText, options = { opacity: 0.25, size: 48 })
+
+// Tambahkan footer nomor halaman kustom
+async function addPageNumbers(inputPath, outputPath, format = 'Halaman {n} dari {total}')
+
+// Konversi kumpulan file gambar (.jpg, .png) menjadi satu file PDF
+async function imagesToPdf(imagePaths, outputPath)
+```
+
+---
+
 ### `src/preload/preload.js`
 
 **Fungsi:** Expose IPC API ke renderer via `contextBridge`
 
 ```javascript
 contextBridge.exposeInMainWorld('electronAPI', {
+  // Dialog
+  openFileDialog: (options) => ipcRenderer.invoke('open-file-dialog', options),
+  openFolderDialog: () => ipcRenderer.invoke('open-folder-dialog'),
+  
+  // Konversi Office & Reverse
   convertFiles: (files, options) => ipcRenderer.invoke('convert-files', files, options),
-  openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
-  onProgress: (callback) => ipcRenderer.on('conversion-progress', callback),
-  onComplete: (callback) => ipcRenderer.on('conversion-complete', callback),
-  onError: (callback) => ipcRenderer.on('conversion-error', callback),
+  convertPdfToWord: (inputPath, outputDir) => ipcRenderer.invoke('convert-pdf-to-word', inputPath, outputDir),
+  
+  // iLovePDF Suite Tools (pdf-lib)
   compressPdf: (filePath, level) => ipcRenderer.invoke('compress-pdf', filePath, level),
+  mergePdfs: (inputPaths, outputPath) => ipcRenderer.invoke('merge-pdfs', inputPaths, outputPath),
+  splitPdf: (inputPath, outputDir, options) => ipcRenderer.invoke('split-pdf', inputPath, outputDir, options),
+  rotatePdf: (inputPath, outputPath, degrees) => ipcRenderer.invoke('rotate-pdf', inputPath, outputPath, degrees),
+  watermarkPdf: (inputPath, outputPath, text, options) => ipcRenderer.invoke('watermark-pdf', inputPath, outputPath, text, options),
+  addPageNumbers: (inputPath, outputPath, format) => ipcRenderer.invoke('add-page-numbers', inputPath, outputPath, format),
+  imagesToPdf: (imagePaths, outputPath) => ipcRenderer.invoke('images-to-pdf', imagePaths, outputPath),
+
+  // System & Window
   getLibreOfficePath: () => ipcRenderer.invoke('get-libreoffice-path'),
+  openFile: (filePath) => ipcRenderer.invoke('open-file', filePath),
+  openFolder: (folderPath) => ipcRenderer.invoke('open-folder', folderPath),
+  onProgress: (callback) => ipcRenderer.on('conversion-progress', callback),
 })
+```
 ```
 
 ---

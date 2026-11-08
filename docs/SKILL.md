@@ -147,6 +147,42 @@ Agent harus mengikuti alur ini **secara ketat dan berurutan**:
 6. Update README.md dengan instruksi final
 ```
 
+### FASE 7 — Core Engine iLovePDF Suite
+```
+1. Buat src/main/pdfTools.js (Merge, Split, Rotate, Watermark, Page Numbers, Images to PDF)
+2. Uji fungsi via test_files/test_pdf_tools.js
+3. Tambahkan convertPdfToWord di src/main/converter.js
+4. Daftarkan IPC handlers di src/main/main.js
+5. Expose IPC API di src/preload/preload.js
+6. Update checklist PLAN.md
+```
+
+### FASE 8 — UI Multi-Tool Navigation (iLovePDF Style)
+```
+1. Tambahkan Tool Switcher / Navigation Hub di src/renderer/index.html
+2. Update styles di src/renderer/styles/main.css sesuai docs/DESIGN.md
+3. Sesuaikan filter drag & drop di src/renderer/scripts/dragdrop.js
+4. Implementasikan state management multi-tool di src/renderer/scripts/app.js
+5. Hubungkan tombol aksi dengan IPC API yang sesuai
+6. Update checklist PLAN.md
+```
+
+### FASE 9 — Integrasi & End-to-End Testing Suite
+```
+1. Jalankan test scenario untuk semua tool mode
+2. Verifikasi tidak ada error di console DevTools
+3. Uji responsivitas UI dan visual feedback
+4. Update checklist PLAN.md
+```
+
+### FASE 10 — Polish & Build Release v2.0
+```
+1. Bump versi di package.json ke 2.0.0
+2. Perbarui README.md dengan daftar fitur lengkap
+3. Jalankan build: npm run build
+4. Update checklist PLAN.md
+```
+
 ---
 
 ## ✅ Aturan Penting untuk Agent

@@ -1,8 +1,16 @@
 const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const os = require('os');
-const { detectLibreOfficePath, convertBatch } = require('./converter');
+const { detectLibreOfficePath, convertBatch, convertPdfToWord } = require('./converter');
 const { compressPdf } = require('./compressor');
+const {
+  mergePdfs,
+  splitPdf,
+  rotatePdf,
+  watermarkPdf,
+  addPageNumbers,
+  imagesToPdf,
+} = require('./pdfTools');
 
 let mainWindow;
 
@@ -35,13 +43,18 @@ function createWindow() {
 // ============================================================
 
 /** Handler: Buka native file picker */
-ipcMain.handle('open-file-dialog', async () => {
+ipcMain.handle('open-file-dialog', async (event, options = {}) => {
+  const defaultFilters = [
+    { name: 'Supported Files', extensions: ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls', 'pdf', 'png', 'jpg', 'jpeg'] },
+    { name: 'Office Files', extensions: ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls'] },
+    { name: 'PDF Documents', extensions: ['pdf'] },
+    { name: 'Image Files', extensions: ['png', 'jpg', 'jpeg'] }
+  ];
+
   const { filePaths } = await dialog.showOpenDialog(mainWindow, {
-    title: 'Pilih file untuk dikonversi',
-    filters: [
-      { name: 'Office Files', extensions: ['docx', 'doc', 'pptx', 'ppt', 'xlsx', 'xls'] }
-    ],
-    properties: ['openFile', 'multiSelections']
+    title: options.title || 'Pilih file untuk diproses',
+    filters: options.filters || defaultFilters,
+    properties: options.properties || ['openFile', 'multiSelections']
   });
   return filePaths || [];
 });
@@ -60,8 +73,8 @@ ipcMain.handle('get-libreoffice-path', async () => {
   return await detectLibreOfficePath();
 });
 
-/** Handler: Konversi file-file ke PDF */
-ipcMain.handle('convert-files', async (event, files, options) => {
+/** Handler: Konversi file-file Office ke PDF */
+ipcMain.handle('convert-files', async (event, files, options = {}) => {
   const outputDir = options.outputDir ||
     path.join(os.homedir(), 'Documents', 'PDFs');
 
@@ -85,6 +98,45 @@ ipcMain.handle('convert-files', async (event, files, options) => {
 ipcMain.handle('compress-pdf', async (event, inputPath, level) => {
   const outputPath = inputPath.replace(/\.pdf$/i, '_compressed.pdf');
   return await compressPdf(inputPath, outputPath, level);
+});
+
+// ============================================================
+// IPC Handlers — iLovePDF Suite Tools
+// ============================================================
+
+/** Handler: Merge PDF */
+ipcMain.handle('merge-pdfs', async (event, inputPaths, outputPath) => {
+  return await mergePdfs(inputPaths, outputPath);
+});
+
+/** Handler: Split PDF */
+ipcMain.handle('split-pdf', async (event, inputPath, outputDir, options) => {
+  return await splitPdf(inputPath, outputDir, options);
+});
+
+/** Handler: Rotate PDF */
+ipcMain.handle('rotate-pdf', async (event, inputPath, outputPath, degrees) => {
+  return await rotatePdf(inputPath, outputPath, degrees);
+});
+
+/** Handler: Watermark PDF */
+ipcMain.handle('watermark-pdf', async (event, inputPath, outputPath, watermarkText, options) => {
+  return await watermarkPdf(inputPath, outputPath, watermarkText, options);
+});
+
+/** Handler: Add Page Numbers */
+ipcMain.handle('add-page-numbers', async (event, inputPath, outputPath, format) => {
+  return await addPageNumbers(inputPath, outputPath, format);
+});
+
+/** Handler: Images to PDF */
+ipcMain.handle('images-to-pdf', async (event, imagePaths, outputPath) => {
+  return await imagesToPdf(imagePaths, outputPath);
+});
+
+/** Handler: PDF to Word */
+ipcMain.handle('convert-pdf-to-word', async (event, inputPath, outputDir, options) => {
+  return await convertPdfToWord(inputPath, outputDir, options);
 });
 
 /** Handler: Buka file di explorer/finder */
